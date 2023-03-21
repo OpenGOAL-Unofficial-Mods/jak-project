@@ -103,7 +103,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (holo)
   )
 
-  (defun-debug tgt-color->string ((cmd tgt-color))
+(defun-debug tgt-color->string ((cmd tgt-color))
   (enum->string tgt-color cmd)
   )
 

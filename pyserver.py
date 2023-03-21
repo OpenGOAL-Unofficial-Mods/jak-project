@@ -41,7 +41,9 @@ class MpTargetState(Enum):
   SEEKER_PLAY = 9
 
 MP_INFO = {
-  "state": MpGameState.INVALID
+  "state": MpGameState.INVALID,
+  "alert_found_pnum": -1,
+  "alert_seeker_pnum": -1,
 }
 PLAYER_IDX_LOOKUP = {}
 PLAYER_LIST = []
@@ -74,6 +76,8 @@ class RequestHandler(BaseHTTPRequestHandler):
       case "/get":
         response_data = {
           "game_state": MP_INFO["state"].value,
+          "alert_found_pnum": MP_INFO["alert_found_pnum"],
+          "alert_seeker_pnum": MP_INFO["alert_seeker_pnum"],
           "players": {}
         }
         for i in range(len(PLAYER_LIST)):
@@ -234,7 +238,7 @@ def game_loop():
     }
 
     for i in range(len(PLAYER_LIST)):
-      if PLAYER_LIST[i] is None or PLAYER_LIST[i] == {} or MpTargetState(PLAYER_LIST[i]["mp_state"]) == MpTargetState.INVALID:
+      if PLAYER_LIST[i] is None or PLAYER_LIST[i] == {} or "mp_state" not in PLAYER_LIST[i] or MpTargetState(PLAYER_LIST[i]["mp_state"]) == MpTargetState.INVALID:
         # dont count this player as joined
         continue
 
@@ -294,13 +298,16 @@ def game_loop():
           print("PLAY_SEEK -> END (timeout - hiders win)")
           MP_INFO["state"] = MpGameState.END
           last_state_change_time = time.time()
+
+        active_hiders = player_counts[MpTargetState.HIDER_START] + player_counts[MpTargetState.HIDER_PLAY]
+        active_seekers = player_counts[MpTargetState.SEEKER_WAIT] + player_counts[MpTargetState.SEEKER_START] + player_counts[MpTargetState.SEEKER_PLAY]
         # if no hiders left, then we should end game
-        if player_counts[MpTargetState.SEEKER_PLAY] > 0 and player_counts[MpTargetState.HIDER_PLAY] == 0:
+        if active_seekers > 0 and active_hiders == 0:
           print("PLAY_SEEK -> END (no hiders - seekers win)")
           MP_INFO["state"] = MpGameState.END
           last_state_change_time = time.time()
         # if no seekers, then we should end game
-        if player_counts[MpTargetState.HIDER_PLAY] > 0 and player_counts[MpTargetState.SEEKER_PLAY] == 0:
+        if active_hiders > 0 and active_seekers == 0:
           print("PLAY_SEEK -> END (no seekers - hiders win)")
           MP_INFO["state"] = MpGameState.END
           last_state_change_time = time.time()
