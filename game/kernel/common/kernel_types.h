@@ -64,6 +64,18 @@ const int MAX_MULTIPLAYER_COUNT = 12;
 struct MultiplayerInfo {
   s32 player_num;
   u32 state; // mp-game-state enum
+  u32 level_mode;
+  u32 continue_point_mode;
+  u32 num_seekers;
+  u32 hide_mode;
+  u32 hider_speed;
+  u32 seeker_speed;
+  u32 rand_seeker;
+  u32 fog_distance;
+  u32 time_to_hide;
+  u32 seeker_timeout;
+  u32 hiders_move;
+  u32 hiders_pause_zoom;
   RemotePlayerInfo players[MAX_MULTIPLAYER_COUNT];
 };
 //static_assert(sizeof(MultiplayerInfo) == 116, "MultiplayerInfo size is wrong");

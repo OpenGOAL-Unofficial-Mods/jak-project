@@ -267,7 +267,7 @@ an orb |#
 
     ;; if never synced positions, or its been X ms, request updated positions
     (when (or (not *last-position-sync-time*)
-              (>= (- (-> *display* base-frame-counter) *last-position-sync-time*) (seconds 0.5)))
+              (>= (- (-> *display* base-frame-counter) *last-position-sync-time*) (seconds 0.05)))
       ;; update last sync time
       (set! *last-position-sync-time* (-> *display* base-frame-counter))
 
