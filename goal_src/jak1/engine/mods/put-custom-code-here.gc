@@ -114,6 +114,7 @@ an orb |#
 
 (define *multiplayer-mode* 'jaks)
 (defun-extern gmenu-1 (none) )
+(define-extern set-up-remote-if-null (function none))
 (define mod-on? #f)
 ;; (define *multiplayer-mode* 'orbs)
 (defun runs-every-frame ()
@@ -122,11 +123,8 @@ an orb |#
   (gmenu-1)
 
   ;; setup our own remote-player-info if we haven't yet
-  (when (not *self-player-info*)
-    (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) "barg") ;; TODO - pull this from settings I guess?
-    (set! (-> *self-player-info* color) (tgt-color purple)) ;; TODO - pull this from settings I guess?
-    )
+  (set-up-remote-if-null)
+
 
   ;; register with server if we haven't yet
   (when (and *target* (not *registered-with-server?*))
