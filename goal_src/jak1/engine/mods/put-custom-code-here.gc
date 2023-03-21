@@ -122,8 +122,8 @@ an orb |#
   ;; setup our own remote-player-info if we haven't yet
   (when (not *self-player-info*)
     (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) "zed") ;; TODO - pull this from settings I guess?
-    (set! (-> *self-player-info* color) (tgt-color red)) ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* username) "barg") ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* color) (tgt-color purple)) ;; TODO - pull this from settings I guess?
     )
 
   ;; register with server if we haven't yet
@@ -151,7 +151,7 @@ an orb |#
             (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-lobby))
             )
           ;; TODO: show players and waiting/ready state
-          ;; TODO: show press O to ready up text
+          ;; TODO: show press R2 to ready up text
           (when (cpad-pressed? 0 r2)
             (case (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state)
               (((mp-tgt-state mp-tgt-lobby))
