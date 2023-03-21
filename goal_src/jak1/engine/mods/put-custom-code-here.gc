@@ -131,7 +131,7 @@ an orb |#
     (pc-http-register *multiplayer-info* *self-player-info*)
     (set! *registered-with-server?* #t)
     ;; wait a bit to ensure registration before syncing position
-    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 1.0)))
+    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 3.0)))
     )
 
   (when (and *target* (>= (-> *multiplayer-info* player_num) 0) (< (-> *multiplayer-info* player_num) MAX_MULTIPLAYER_COUNT))
@@ -151,7 +151,7 @@ an orb |#
             (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-lobby))
             )
           ;; TODO: show players and waiting/ready state
-          ;; TODO: show press O to ready up text
+          ;; TODO: show press R2 to ready up text
           (when (cpad-pressed? 0 r2)
             (case (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state)
               (((mp-tgt-state mp-tgt-lobby))
