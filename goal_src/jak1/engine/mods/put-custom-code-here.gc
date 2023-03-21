@@ -122,8 +122,8 @@ an orb |#
   ;; setup our own remote-player-info if we haven't yet
   (when (not *self-player-info*)
     (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) "zed") ;; TODO - pull this from settings I guess?
-    (set! (-> *self-player-info* color) (tgt-color red)) ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* username) "barg") ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* color) (tgt-color purple)) ;; TODO - pull this from settings I guess?
     )
 
   ;; register with server if we haven't yet
@@ -131,7 +131,7 @@ an orb |#
     (pc-http-register *multiplayer-info* *self-player-info*)
     (set! *registered-with-server?* #t)
     ;; wait a bit to ensure registration before syncing position
-    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 3.0)))
+    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 1.0)))
     )
 
   (when (and *target* (>= (-> *multiplayer-info* player_num) 0) (< (-> *multiplayer-info* player_num) MAX_MULTIPLAYER_COUNT))
@@ -267,7 +267,7 @@ an orb |#
 
     ;; if never synced positions, or its been X ms, request updated positions
     (when (or (not *last-position-sync-time*)
-              (>= (- (-> *display* base-frame-counter) *last-position-sync-time*) (seconds 0.5)))
+              (>= (- (-> *display* base-frame-counter) *last-position-sync-time*) (seconds 0.05)))
       ;; update last sync time
       (set! *last-position-sync-time* (-> *display* base-frame-counter))
 
