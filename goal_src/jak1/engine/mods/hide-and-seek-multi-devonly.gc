@@ -63,8 +63,7 @@ Player Position: ~M ~M ~M "
 (-> *multiplayer-info* player_num)
 (-> *target* root trans x)(-> *target* root trans y)(-> *target* root trans z))
 
-                (format *temp-string* "
-Target State: ~A
+                (format *temp-string* "~%Target State: ~A
 Target Color: ~S"
 (-> *target* state name)
 (tgt-color->string (-> *self-player-info* color))
