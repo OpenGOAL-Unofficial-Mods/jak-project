@@ -35,7 +35,7 @@
     (when (cpad-pressed? 0 left)
       (set! page (mod (+ (- page 1) page-size) page-size))
       )
-    (with-dma-buffer-add-bucket ((testbuf (-> (current-frame) debug-buf)) (bucket-id debug-no-zbuf))
+    (with-dma-buffer-add-bucket ((testbuf (-> (current-frame) debug-buf)) (bucket-id subtitle))
       (case page
         ((0)
           ;; change text position
