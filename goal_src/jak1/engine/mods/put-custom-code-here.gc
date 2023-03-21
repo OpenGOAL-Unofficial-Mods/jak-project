@@ -68,6 +68,8 @@ an orb |#
   (set! (-> obj root quat z)  (-> p quat_z))
   (set! (-> obj root quat w)  (-> p quat_w))
 
+  (color-target obj (-> p color))
+
   ;; additional steps for rotation, state, etc
   (case (-> obj type)
     ((target)
@@ -330,10 +332,6 @@ an orb |#
                 (obj (the process-drawable (handle->process (-> *remote-targets* idx)))))
             (when obj
               (position-actor obj p)
-              (if (= (-> p role) (mp-game-role seeker))
-                (color-target obj (tgt-color holo)) ;; seekers are holo
-                (color-target obj (-> p color)) ;; otherwise use player's choice
-                )
               )
             )
           )
@@ -341,10 +339,7 @@ an orb |#
       )
 
     ;; color ourselves
-    (if (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) role) (mp-game-role seeker))
-      (color-target *target* (tgt-color holo)) ;; seekers are holo
-      (color-target *target* (-> *self-player-info* color)) ;; otherwise use player's choice
-      )
+    (color-target *target* (-> *self-player-info* color)) ;; otherwise use player's choice
     )
   (none)
   )
