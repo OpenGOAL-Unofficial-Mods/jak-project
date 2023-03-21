@@ -14,8 +14,8 @@
 #include "game/kernel/jak1/kscheme.h"
 #include "game/runtime.h"
 
-std::string ipAddressOrHostname = "localhost:8080";
-// std::string ipAddressOrHostname = "78.108.218.126:25560";
+std::string ipAddressOrHostname = "localhost:25560";
+//std::string ipAddressOrHostname = "78.108.218.126:25560";
 std::stringstream urlStream;
 
 size_t curl_write_callbacka(char* ptr, size_t size, size_t nmemb, void* userdata) {
@@ -71,7 +71,7 @@ void http_register(u64 mpInfo, u64 selfPlayerInfo) {
   }).detach();
 }
 
-void http_update_generic(const std::string& endpoint, const nlohmann::json& payload) {
+void http_post_generic(const std::string& endpoint, const nlohmann::json& payload) {
   // spawn new thread to handle parsing curl response
   std::thread([endpoint, payload]() {
     // Initialize curl
@@ -102,10 +102,23 @@ void http_update_generic(const std::string& endpoint, const nlohmann::json& payl
   }).detach();
 }
 
+void http_mark_found(int idx) {
+  RemotePlayerInfo* ownRpInfo = &(gMultiplayerInfo->players[gMultiplayerInfo->player_num]);
+  RemotePlayerInfo* foundRpInfo = &(gMultiplayerInfo->players[idx]);
+
+  std::string url = "http://" + ipAddressOrHostname + "/mark_found";
+
+  // Construct JSON payload
+  nlohmann::json payload = {{"seeker_username", Ptr<String>(ownRpInfo->username).c()->data()},
+                            {"found_username", Ptr<String>(foundRpInfo->username).c()->data()}};
+
+  http_post_generic(url, payload);
+}
+
 void http_update() {
   RemotePlayerInfo* rpInfo = &(gMultiplayerInfo->players[gMultiplayerInfo->player_num]);
 
-  std::string username = Ptr<String>(gSelfPlayerInfo->username).c()->data();
+  std::string username = Ptr<String>(rpInfo->username).c()->data();
   std::string url = "http://" + ipAddressOrHostname + "/update?username=" + username;
 
   // Construct JSON payload
@@ -120,10 +133,11 @@ void http_update() {
       {"quat_z", rpInfo->quat_z},
       {"quat_w", rpInfo->quat_w},
       {"tgt_state", rpInfo->tgt_state},
+      // role intentionally left out, only updated from server side
       {"mp_state", rpInfo->mp_state}
   };
 
-  http_update_generic(url, payload);
+  http_post_generic(url, payload);
 }
 
 void http_get() {
@@ -157,6 +171,10 @@ void http_get() {
       // game state
       int game_state = response_json["game_state"];
       gMultiplayerInfo->state = game_state;
+      int alert_found_pnum = response_json["alert_found_pnum"];
+      gMultiplayerInfo->alert_found_pnum = alert_found_pnum;
+      int alert_seeker_pnum = response_json["alert_seeker_pnum"];
+      gMultiplayerInfo->alert_seeker_pnum = alert_seeker_pnum;
 
       // players
       for (const auto& item : response_json["players"].items()) {
@@ -187,7 +205,10 @@ void http_get() {
               rpInfo->quat_w = field.value();
             } else if (field.key().compare("tgt_state") == 0) {
               rpInfo->tgt_state = field.value();
-            } else if (field.key().compare("mp_state") == 0) {
+            } else if (field.key().compare("role") == 0) {
+              rpInfo->role = field.value();
+            } else if (field.key().compare("mp_state") == 0
+              && pNum != gMultiplayerInfo->player_num) { // only sync mp_state for remotes. for our own target, only goal code should be updating this
               rpInfo->mp_state = field.value();
             }
           }

@@ -54,6 +54,7 @@ struct RemotePlayerInfo {
   float quat_z;
   float quat_w;
   s32 tgt_state;
+  u32 role;  // mp-game-role enum
   u32 mp_state; // mp-tgt-state enum
 };
 // static_assert(sizeof(RemotePlayerInfo) == 32, "RemotePlayerInfo size is wrong");
@@ -62,7 +63,21 @@ const int MAX_MULTIPLAYER_COUNT = 12;
 
 struct MultiplayerInfo {
   s32 player_num;
-  u32 state; // mp-game-state enum
   RemotePlayerInfo players[MAX_MULTIPLAYER_COUNT];
+  u32 state; // mp-game-state enum
+  s32 alert_found_pnum;
+  s32 alert_seeker_pnum;
+  u32 level_mode;
+  u32 continue_point_mode;
+  s32 num_seekers;
+  u32 hide_mode;
+  float hider_speed;
+  float seeker_speed;
+  u32 rand_seeker;
+  float fog_distance;
+  float time_to_hide;
+  float seeker_timeout;
+  u32 hiders_move;
+  u32 hiders_pause_zoom;
 };
 //static_assert(sizeof(MultiplayerInfo) == 116, "MultiplayerInfo size is wrong");
