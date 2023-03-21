@@ -71,7 +71,7 @@ void http_register(u64 mpInfo, u64 selfPlayerInfo) {
   }).detach();
 }
 
-void http_update_generic(const std::string& endpoint, const nlohmann::json& payload) {
+void http_post_generic(const std::string& endpoint, const nlohmann::json& payload) {
   // spawn new thread to handle parsing curl response
   std::thread([endpoint, payload]() {
     // Initialize curl
@@ -102,19 +102,23 @@ void http_update_generic(const std::string& endpoint, const nlohmann::json& payl
   }).detach();
 }
 
-void http_update_servergamesettingsinfo() {
-  nlohmann::json payload = {
-      // {"tgt_Username", val1},
-      // {"tgt_Color", val2}
-  };
-  std::string url = "http://" + ipAddressOrHostname + "/updategame";
-  http_update_generic(url, payload);
+void http_mark_found(int idx) {
+  RemotePlayerInfo* ownRpInfo = &(gMultiplayerInfo->players[gMultiplayerInfo->player_num]);
+  RemotePlayerInfo* foundRpInfo = &(gMultiplayerInfo->players[idx]);
+
+  std::string url = "http://" + ipAddressOrHostname + "/mark_found";
+
+  // Construct JSON payload
+  nlohmann::json payload = {{"seeker_username", Ptr<String>(ownRpInfo->username).c()->data()},
+                            {"found_username", Ptr<String>(foundRpInfo->username).c()->data()}};
+
+  http_post_generic(url, payload);
 }
 
-void http_update_position() {
+void http_update() {
   RemotePlayerInfo* rpInfo = &(gMultiplayerInfo->players[gMultiplayerInfo->player_num]);
 
-  std::string username = Ptr<String>(gSelfPlayerInfo->username).c()->data();
+  std::string username = Ptr<String>(rpInfo->username).c()->data();
   std::string url = "http://" + ipAddressOrHostname + "/update?username=" + username;
 
   // Construct JSON payload
@@ -129,13 +133,14 @@ void http_update_position() {
       {"quat_z", rpInfo->quat_z},
       {"quat_w", rpInfo->quat_w},
       {"tgt_state", rpInfo->tgt_state},
+      // role intentionally left out, only updated from server side
       {"mp_state", rpInfo->mp_state}
   };
 
-  http_update_generic(url, payload);
+  http_post_generic(url, payload);
 }
 
-void http_get_positions() {
+void http_get() {
   // spawn new thread to handle parsing curl response
   std::thread([]() {
     // Initialize curl
@@ -143,8 +148,7 @@ void http_get_positions() {
     curl_global_init(CURL_GLOBAL_ALL);
     CURL* curl = curl_easy_init();
 
-    std::string username = Ptr<String>(gSelfPlayerInfo->username).c()->data();
-    std::string url = "http://" + ipAddressOrHostname + "/get?username=" + username;
+    std::string url = "http://" + ipAddressOrHostname + "/get";
 
     // Set curl options
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -163,14 +167,20 @@ void http_get_positions() {
     if (res == CURLE_OK) {
       // Parse JSON response
       nlohmann::json response_json = nlohmann::json::parse(response_data);
-      for (const auto& item : response_json.items()) {
+
+      // game state
+      int game_state = response_json["game_state"];
+      gMultiplayerInfo->state = game_state;
+
+      // players
+      for (const auto& item : response_json["players"].items()) {
         int pNum = stoi(item.key());
         if (pNum < MAX_MULTIPLAYER_COUNT) {
           RemotePlayerInfo* rpInfo = &(gMultiplayerInfo->players[pNum]);
 
           for (const auto& field : item.value().items()) {
             if (field.key().compare("username") == 0) {
-              // copy username into struct
+              // str copy username into struct
               std::string uname = field.value();
               strncpy(Ptr<String>(rpInfo->username).c()->data(), uname.c_str(), MAX_USERNAME_LEN);
             } else if (field.key().compare("color") == 0) {
@@ -191,7 +201,10 @@ void http_get_positions() {
               rpInfo->quat_w = field.value();
             } else if (field.key().compare("tgt_state") == 0) {
               rpInfo->tgt_state = field.value();
-            } else if (field.key().compare("mp_state") == 0) {
+            } else if (field.key().compare("role") == 0) {
+              rpInfo->role = field.value();
+            } else if (field.key().compare("mp_state") == 0
+              && pNum != gMultiplayerInfo->player_num) { // only sync mp_state for remotes. for our own target, only goal code should be updating this
               rpInfo->mp_state = field.value();
             }
           }
