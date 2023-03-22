@@ -198,6 +198,7 @@ an orb |#
             )
           )
         (((mp-game-state mp-game-starting-soon))
+          ;; TODO POST settings from admin, and GET if not admin
           ;; jump to lobby if game is in starting-soon state and we're not already there
           (when (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
             (start 'play (get-continue-by-name *game-info* *lobby-continue-point*))

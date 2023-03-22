@@ -180,6 +180,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     (new (symbol type) _type_ 0)
     )
   )
+  
 (defmethod new hide-and-seek-game-info-struct ((allocation symbol) (type-to-make type))
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (set! (-> obj alert-found-pnum) -1)
