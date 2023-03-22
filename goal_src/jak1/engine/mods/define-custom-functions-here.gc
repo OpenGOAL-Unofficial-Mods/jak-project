@@ -551,6 +551,164 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (draw-xyz jak 0.0 3.0 3.0)
 )
 
+;;Randomizer checkpoint stuff
+
+(define *checkpoint-list-by-level-idx* 
+  (new 'static 'boxed-array :type (array string) :length 16 :allocated-length 16
+    ;; Geyser Rock
+    (new 'static 'boxed-array :type string :length 2
+      "game-start"
+      "training-far"
+    )
+    ;; Sandover
+    (new 'static 'boxed-array :type string :length 3
+      "village1-hut"
+      "village1-warp"
+      "village1-far"
+    )
+    ;; Sentinel Beach
+    (new 'static 'boxed-array :type string :length 3
+      "beach-start"
+      "beach-pelican"
+      "beach-far"
+    )
+    ;; Forbidden Jungle
+    (new 'static 'boxed-array :type string :length 3
+      "jungle-start"
+      "jungle-far"
+      "jungle-tower"
+    )
+    ;; Misty Island
+    (new 'static 'boxed-array :type string :length 5
+      "misty-start"
+      "misty-silo"
+      "misty-bike"
+      "misty-backside"
+      "misty-silo2"
+    )
+    ;; Fire Canyon
+    (new 'static 'boxed-array :type string :length 2
+      "firecanyon-start"
+      "firecanyon-end"
+    )
+    ;; Rock Village
+    (new 'static 'boxed-array :type string :length 3
+      "village2-start"
+      "village2-warp"
+      "village2-dock"
+    )
+    ;; Lost Precursor City
+    (new 'static 'boxed-array :type string :length 6
+      "sunken-start"
+      "sunken1"
+      "sunken2"
+      "sunken-tube1"
+      "sunkenb-start"
+      "sunkenb-helix"
+    )
+    ;; Boggy Swamp
+    (new 'static 'boxed-array :type string :length 8
+      "swamp-start"
+      "swamp-dock1"
+      "swamp-cave1"
+      "swamp-dock2"
+      "swamp-cave2"
+      "swamp-game"
+      "swamp-cave3"
+      "swamp-flutflut"
+    )
+    ;; Precursor Basin
+    (new 'static 'boxed-array :type string :length 1
+      "rolling-start"
+    )
+    ;; Mountain Pass
+    (new 'static 'boxed-array :type string :length 3
+      "ogre-start"
+      "ogre-race"
+      "ogre-end"
+    )
+    ;; Volcanic Crater
+    (new 'static 'boxed-array :type string :length 4
+      "village3-start"
+      "village3-warp"
+      "village3-farside"
+      "village3-cart"
+    )
+    ;; Snowy Mountain
+    (new 'static 'boxed-array :type string :length 9
+      "snow-start"
+      "snow-fort"
+      "snow-flut-flut"
+      "snow-pass-to-fort"
+      "snow-by-ice-lake"
+      "snow-by-ice-lake-alt"
+      "snow-outside-fort"
+      "snow-outside-cave"
+      "snow-across-from-flut"
+    )
+    ;; Spider Cave
+    (new 'static 'boxed-array :type string :length 6
+      "maincave-start"
+      "maincave-to-darkcave"
+      "maincave-to-robocave"
+      "darkcave-start"
+      "robocave-start"
+      "robocave-bottom"
+    )
+    ;; Lava Tube
+    (new 'static 'boxed-array :type string :length 6
+      "lavatube-start"
+      "lavatube-middle"
+      "lavatube-after-ribbon"
+      "lavatube-end"
+      "citadel-entrance"
+      "citadel-warp"
+    )
+    ;; Gol and Maia's Citadel
+    (new 'static 'boxed-array :type string :length 8
+      "citadel-start"
+      "citadel-plat-start"
+      "citadel-plat-end"
+      "citadel-launch-start"
+      "citadel-launch-end"
+      "citadel-generator-start"
+      "citadel-generator-end"
+      "citadel-elevator"
+    )
+  )
+)
+(defenum checkpoint-list-by-level-idx-names
+(Geyser) 
+(Sandover)
+(Sentinel)
+(Forbidden)
+(Misty)
+(Fire)
+(Rock)
+(Lost)
+(Boggy)
+(Basin)
+(Mountain)
+(Spider)
+(Lava)
+(Gol)
+)
+
+
+(defun random-checkpoint-by-level-idx ((rand int))
+
+          (let ((random-level-idx rand))
+            ;; ...then choose random checkpoint within that level
+            (let ((random-level-checkpoint-idx (knuth-rand-int-range 0 (-> *checkpoint-list-by-level-idx* random-level-idx length))))
+              (-> *checkpoint-list-by-level-idx* 
+                random-level-idx 
+                random-level-checkpoint-idx
+                )
+              )
+            )
+)
+
+
 
 
 
