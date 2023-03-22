@@ -184,6 +184,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (num-seekers          int32);; Number of seekers in a given match
   (num-hiders          int32);; Number of total hiders, set this on game start (DO NOT INCLUDE SEEKERS HERE)
   (num-hiders-alive    int32);; Track how many hiders are still alive to know to end the game or not
+  (seekers-infect      int32);;Future feature 
   (last-winner         int32);; idx of the player who has most recently won (DO NOT RESET THIS VALUE)
   (hider-speed          float);; Float value that modifies a hiders speed
   (seeker-speed         float);; Float value that modifies a seekers speed (can be under 1 to slow them)
@@ -196,7 +197,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (time-to-hide         float);; Time that the hiders have to hide
   (seeker-timeout       float);; If the match goes on for this length then the seekers win
   (hiders-move?        symbol);;Allow movement/dont after a countdown
-  (hide-mode?          symbol);;Allow movement/dont after countdown
   (hiders-pauser-zoom? symbol);;Disable zooming and pause for hiders if they are using it to cheat.
   )
   (:methods
