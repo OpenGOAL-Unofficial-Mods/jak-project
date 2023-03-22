@@ -21,120 +21,6 @@ an orb |#
 ;; Begin function defintions.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define *multiplayer-info* (new 'global 'multiplayer-info))
-(define *hide-and-seek-info* (new 'global 'hide-and-seek-game-info-struct))
-(define *registered-with-server?* #f)
-(define *last-position-sync-time* (the-as time-frame #f))
-(define *lobby-continue-point* "spyro2-autumnplains-start")
-(define *hider-continue-point* "village2-start")
-(define *seeker-continue-point* "village2-dock")
-
-(define *remote-targets* (new 'global 'boxed-array handle MAX_MULTIPLAYER_COUNT))
-
-(defun start-extra-target ()
-  (ppointer->handle (process-spawn
-                target
-                :init init-target
-                  (-> *game-info* current-continue)
-                :from *target-dead-pool*
-                :to *target-pool*
-                :stack *kernel-dram-stack*
-                ))
-  )
-
-(defun get-target ((idx int))
-  (if (= (-> *multiplayer-info* player_num) -1)
-    (if (= idx 0)
-      *target*
-      (the-as target #f)
-      )
-    (if (= (-> *multiplayer-info* player_num) idx)
-      *target*
-      (if (and (-> *remote-targets* idx) (nonzero? (-> *remote-targets* idx)) (handle->process (-> *remote-targets* idx)))
-        (the target (handle->process (-> *remote-targets* idx)))
-        (the-as target #f)
-        )
-      )
-    )
-  )
-
-(defun position-actor ((obj process-drawable) (p remote-player-info))
-  ;; position
-  (set! (-> obj root trans x) (-> p trans_x))
-  (set! (-> obj root trans y) (-> p trans_y))
-  (set! (-> obj root trans z) (-> p trans_z))
-  ;; rotation
-  (set! (-> obj root quat x)  (-> p quat_x))
-  (set! (-> obj root quat y)  (-> p quat_y))
-  (set! (-> obj root quat z)  (-> p quat_z))
-  (set! (-> obj root quat w)  (-> p quat_w))
-
-  (color-target obj (-> p color))
-
-  ;; additional steps for rotation, state, etc
-  (case (-> obj type)
-    ((target)
-      (let* ((t (the target obj))
-             (local-seeker? (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) role) (mp-game-role seeker)))
-             (remote-seeker? (= (-> p role) (mp-game-role seeker)))
-             )
-        ;; draw usernames if both players are seekers/hiders
-        (when (= local-seeker? remote-seeker?)
-          (add-debug-text-3d
-                       #t
-                       (bucket-id debug-no-zbuf)
-                       (-> p username)
-                       (-> t root trans)
-                       (font-color white)
-                       (new 'static 'vector2h :y 16)
-                       )
-          )
-
-        ;; make invulnerable so they dont die
-        (logior! (-> t state-flags) (state-flags invulnerable))
-
-        ;; finalize rotation
-        (quaternion-copy! (-> t control dir-targ) (-> t root quat))
-          
-        ;; sync target state
-        (target-sync-state (-> p tgt_state) t)
-        )
-      )
-    ((money)
-      (let ((m (the money obj)))
-        (vector-copy! (-> m base) (-> m root trans))
-        (vector-copy! (-> m root-override root-prim world-sphere) (-> m root trans))
-        )
-      )
-    )
-    (none)
-  )
-
-;;STRING Variables
-(define *warp-hider-lobby->game* 72)
-(define *warp-seeker-lobby->game* 45)
-(define *game-countdown-time* 31)
-(define *TOTAL-SEEKERS* 1)
-(define *current-hiders* 1)
-(define *TOTAL-HIDERS* 3)
-(define *collected-by-idx* 1)
-(define *ending-position* 1)
-(define *last-winner* 1)
-(define *post-game-timeout* 3)
-
-(define *self-player-info* (the-as remote-player-info #f))
-(define *game-state-change-time* (the-as time-frame #f))
-
-(define *multiplayer-mode* 'jaks)
-(defun-extern gmenu-1 (none) )
-(define-extern set-up-remote-if-null (function none))
-(define mod-on? #f)
-;; (define *multiplayer-mode* 'orbs)
-
-(defun reset-player-to-lobby ()
-  (start 'play (get-continue-by-name *game-info* *lobby-continue-point*))
-  (none)
-  )
 
 (defun runs-every-frame ()
 
@@ -319,16 +205,7 @@ an orb |#
       (set! *last-position-sync-time* (-> *display* base-frame-counter))
 
       ;; update this player's position and send to server
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) username)   (-> *self-player-info* username))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) color)      (-> *self-player-info* color))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_x)    (-> *target* root trans x))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_y)    (-> *target* root trans y))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_z)    (-> *target* root trans z))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_x)     (-> *target* root quat x))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_y)     (-> *target* root quat y))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_z)     (-> *target* root quat z))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_w)     (-> *target* root quat w))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) tgt_state)  (-> *target* state name))
+      (update-multiplayer-info)
 
       ;; if first time, we need to change our state from invalid to lobby
       ;; this is also sort of like an "ack" back to the server to count you as fully joined
@@ -343,45 +220,7 @@ an orb |#
       (pc-http-get)
       )
 
-    (dotimes (idx MAX_MULTIPLAYER_COUNT)
-      (when (!= (-> *multiplayer-info* player_num) idx)
-        (when (!= (-> *multiplayer-info* players idx mp_state) (mp-tgt-state mp-tgt-invalid))
-          ;; see if we need to spawn any remote targets
-          (when (or (zero? (-> *remote-targets* idx)) (not (handle->process (-> *remote-targets* idx))))
-            (case *multiplayer-mode*
-              (('jaks)
-                (set! (-> *remote-targets* idx) (start-extra-target))
-                )
-              (('orbs)
-                (let ((vec (new 'stack-no-clear 'vector)))
-                  (set! (-> vec x) 0.0)
-                  (set! (-> vec y) -80920.0)  ;; spawn orbs 20m under 0,0,0 so nobody can collect them (nice try zed)
-                  (set! (-> vec z) 0.0)
-                  (set! (-> *remote-targets* idx) (ppointer->handle (birth-pickup-at-point-inner
-                                                      vec
-                                                      (pickup-type money)
-                                                      (the-as float 1.0)
-                                                      #t
-                                                      *target*
-                                                      (the-as fact-info #f)
-                                                      #f  ;; no-bob
-                                                    )))
-                  )
-                )
-              )
-            )
-          ;; assume target spawned at this point 
-
-          ;; position/color remote targets
-          (let ((p (-> *multiplayer-info* players idx))
-                (obj (the process-drawable (handle->process (-> *remote-targets* idx)))))
-            (when obj
-              (position-actor obj p)
-              )
-            )
-          )
-        )
-      )
+    (spawn-multiple-targets)
 
     ;; color ourselves
     (color-target *target* (-> *self-player-info* color)) ;; otherwise use player's choice
