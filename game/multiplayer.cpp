@@ -14,8 +14,8 @@
 #include "game/kernel/jak1/kscheme.h"
 #include "game/runtime.h"
 
-std::string ipAddressOrHostname = "localhost:25560";
-//std::string ipAddressOrHostname = "78.108.218.126:25560";
+//std::string ipAddressOrHostname = "localhost:25560";
+std::string ipAddressOrHostname = "78.108.218.126:25560";
 std::stringstream urlStream;
 
 size_t curl_write_callbacka(char* ptr, size_t size, size_t nmemb, void* userdata) {
