@@ -150,6 +150,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (deftype multiplayer-info (structure)
  ((game-type-mode       symbol);;This is future proofing to allow other gamemodes in the codebase
   (player_num           int32)
+  (lobby-name          symbol)
   (players    remote-player-info MAX_MULTIPLAYER_COUNT :inline)
   (hide-and-seek-game-info    hide-and-seek-game-info-struct)
   (state        mp-game-state)
