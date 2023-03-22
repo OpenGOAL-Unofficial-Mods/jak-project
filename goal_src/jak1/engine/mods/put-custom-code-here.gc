@@ -30,13 +30,12 @@ an orb |#
   ;; setup our own remote-player-info if we haven't yet
   (set-up-remote-if-null)
 
-
   ;; register with server if we haven't yet
   (when (and *target* (not *registered-with-server?*))
-    (pc-http-register *multiplayer-info* *self-player-info*)
+    (pc-http-register *multiplayer-info* *self-player-info* *hide-and-seek-info*)
     (set! *registered-with-server?* #t)
     ;; wait a bit to ensure registration before syncing position
-    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 3.0)))
+    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 1.0)))
     )
 
   (when (and *target* (>= (-> *multiplayer-info* player_num) 0) (< (-> *multiplayer-info* player_num) MAX_MULTIPLAYER_COUNT))

@@ -80,6 +80,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (none)
   )
 
+
 (defun update-multiplayer-info()
       (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) username)   (-> *self-player-info* username))
       (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) color)      (-> *self-player-info* color))
@@ -91,6 +92,18 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
       (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_z)     (-> *target* root quat z))
       (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_w)     (-> *target* root quat w))
       (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) tgt_state)  (-> *target* state name))
+)
+
+(defun update-hide-and-seek-settings()
+#|
+If we are the admin, set our settings locally to prepare to push them to the server, then call a funtion to push them to the server.
+Most of these settings will be set via progress menu, only things we need to calculate here is the "random" stuff (who is and isnt seeker etc)
+|#
+
+#|
+If we are not the admin, wait for a time, then get the updated settings from the server.
+|#
+(none)
 )
 
 (defun spawn-multiple-targets ()
