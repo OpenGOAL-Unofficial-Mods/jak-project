@@ -109,6 +109,18 @@ an orb |#
     (none)
   )
 
+;;STRING Variables
+(define *warp-hider-lobby->game* 72)
+(define *warp-seeker-lobby->game* 45)
+(define *game-countdown-time* 31)
+(define *TOTAL-SEEKERS* 1)
+(define *current-hiders* 1)
+(define *TOTAL-HIDERS* 3)
+(define *collected-by-idx* 1)
+(define *ending-position* 1)
+(define *last-winner* 1)
+(define *post-game-timeout* 3)
+
 (define *self-player-info* (the-as remote-player-info #f))
 (define *game-state-change-time* (the-as time-frame #f))
 
@@ -188,7 +200,7 @@ an orb |#
             (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-start))
             )
           ;; TODO: same as lobby, but also show timer
-          (draw-string-xy (string-format "Game Starting soon!!! COUNDOWN INT") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+          (draw-string-xy (string-format "Game Starting soon!!! ~D" *game-countdown-time*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
           )
         (((mp-game-state mp-game-play-hide))
           ;; TODO: show text for who's who (toggle?)
@@ -209,18 +221,18 @@ an orb |#
               )
             (((mp-tgt-state mp-tgt-hider-start))
               ;; TODO: spawn at ? checkpoint (based on toggle), show text and timer to controls, switch to hider-play
-              (draw-string-xy (string-format "You are the Hider HIDE! Warpin in 72 seconds to LEVEL") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              (draw-string-xy (string-format "You are the Hider HIDE! Warpin in ~D seconds to LEVEL" *warp-hider-lobby->game*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (start 'play (get-continue-by-name *game-info* *hider-continue-point*))
               (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-hider-play))
               )
             (((mp-tgt-state mp-tgt-hider-play))
               ;; TODO: timer and give controls
-              (draw-string-xy (string-format "You are the Hider HIDE! Seekers coming in 72 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              (draw-string-xy (string-format "You are the Hider HIDE! Seekers coming in ~D seconds" *warp-hider-lobby->game*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               )
             (((mp-tgt-state mp-tgt-seeker-wait))
               ;; TODO blackout with timer
-              (draw-string-xy (string-format "You are the seeker, hiders are hiding, warping in 32 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
-              (set-blackout-frames (seconds 30))
+              (draw-string-xy (string-format "You are the seeker, hiders are hiding, warping in ~D seconds" *warp-seeker-lobby->game*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              ;; (set-blackout-frames (seconds 30))
               )
             )
           )
@@ -240,7 +252,7 @@ an orb |#
             (((mp-tgt-state mp-tgt-hider-play))
               ;; TODO: show text
               ;; TODO: optionally freeze
-              (draw-string-xy (string-format "You are hider, there are 1 Seekers and HIDER/TOTALHIDER alive") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              (draw-string-xy (string-format "You are hider, there are ~D Seekers and ~D/~D alive" *TOTAL-SEEKERS* *current-hiders* *TOTAL-HIDERS*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (case (-> *multiplayer-info* players (-> *multiplayer-info* player_num) role)
                 (((mp-game-role found))
                   (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-hider-found))
@@ -248,11 +260,11 @@ an orb |#
                 )
               )
             (((mp-tgt-state mp-tgt-hider-found))
-              (draw-string-xy (string-format "You were found by DEFAULT and placed POSITION/TOTALHIDER") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              (draw-string-xy (string-format "You were found by ~S and placed ~D/~D" *collected-by-idx* *ending-position* *TOTAL-HIDERS*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               ;; TODO: freeze inputs, timer then return to lobby 
               )
             (((mp-tgt-state mp-tgt-seeker-wait))
-              (draw-string-xy (string-format "You are the seeker, hiders are hiding, warping in 45 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              (draw-string-xy (string-format "You are the seeker, hiders are hiding, warping in ~S seconds" *warp-seeker-lobby->game*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               ;; TODO: show text and timer to controls
               (start 'play (get-continue-by-name *game-info* *seeker-continue-point*))
               (set-blackout-frames 0)
@@ -261,7 +273,7 @@ an orb |#
             (((mp-tgt-state mp-tgt-seeker-play))
               ;; TODO: option to give up
               ;; check for finding other players
-              (draw-string-xy (string-format "You are seeker, and HIDER/TOTALHIDER alive") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              (draw-string-xy (string-format "You are seeker, and ~D/~D alive" *current-hiders* *TOTAL-HIDERS*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (dotimes (idx MAX_MULTIPLAYER_COUNT)
                 (when (and (!= (-> *multiplayer-info* player_num) idx)
                            (!= (-> *multiplayer-info* players idx mp_state) (mp-tgt-state mp-tgt-invalid))
@@ -277,7 +289,7 @@ an orb |#
           )
         (((mp-game-state mp-game-end))
           ;; TODO: show text about who won, stats, idfk
-          (draw-string-xy (string-format "Epic Victory by USERNAME, Going back to lobby in TIMEOUT") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+          (draw-string-xy (string-format "Epic Victory by ~S, Going back to lobby in ~D" *last-winner* *post-game-timeout*) testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
           )
         )
       )
