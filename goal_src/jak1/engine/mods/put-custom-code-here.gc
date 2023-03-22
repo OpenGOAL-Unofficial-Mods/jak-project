@@ -234,7 +234,7 @@ an orb |#
             (((mp-tgt-state mp-tgt-seeker-wait))
               ;; TODO blackout with timer
               (draw-string-xy (string-format "You are the seeker, hiders are hiding, warping in 32 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
-              (set-blackout-frames (seconds 30))
+              ;; (set-blackout-frames (seconds 30))
               )
             )
           )
