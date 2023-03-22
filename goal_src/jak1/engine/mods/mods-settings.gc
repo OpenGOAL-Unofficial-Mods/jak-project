@@ -161,7 +161,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (num-seekers          int32);; Number of seekers in a given match
   (num-hiders          int32);; Number of total hiders, set this on game start (DO NOT INCLUDE SEEKERS HERE)
   (num-hiders-alive    int32);; Track how many hiders are still alive to know to end the game or not
-  (seekers-infect      int32);;Future feature 
+  (seekers-infect      symbol);;Future feature 
   (last-winner         int32);; idx of the player who has most recently won (DO NOT RESET THIS VALUE)
   (hider-speed          float);; Float value that modifies a hiders speed
   (seeker-speed         float);; Float value that modifies a seekers speed (can be under 1 to slow them)
@@ -183,7 +183,26 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (defmethod new hide-and-seek-game-info-struct ((allocation symbol) (type-to-make type))
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (set! (-> obj alert-found-pnum) -1)
-    (set! (-> obj alert-seeker-pnum) -1)
+    (set! (-> obj alert-seeker-pnum) -1) ;;maybe these are local to the player
+    (set! (-> obj level-mode) 'il)
+    (set! (-> obj continue-point-mode) 'RANDOM)
+    (set! (-> obj num-seekers) 0)
+    (set! (-> obj num-hiders) 0)
+    (set! (-> obj num-hiders-alive) 0)
+    (set! (-> obj seekers-infect) #f)
+    (set! (-> obj last-winner) -1)
+    (set! (-> obj hider-speed) 1.0)
+    (set! (-> obj seeker-speed) 1.0)
+    (set! (-> obj choose-seeker?) 'LASTWINNER)
+    (set! (-> obj fog-distance) 0.0)
+    (set! (-> obj warp-hider-lobby->game) 32)
+    (set! (-> obj warp-seeker-lobby->game) 72)
+    (set! (-> obj game-countdown-time) 31)
+    (set! (-> obj post-game-timeout) 6)
+    (set! (-> obj time-to-hide) 35.0)
+    (set! (-> obj seeker-timeout) 5.0)
+    (set! (-> obj hiders-move?) #t)
+    (set! (-> obj hiders-pauser-zoom?) #t)
     obj
     )
   )
