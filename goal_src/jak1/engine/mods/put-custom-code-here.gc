@@ -68,6 +68,8 @@ an orb |#
   (set! (-> obj root quat z)  (-> p quat_z))
   (set! (-> obj root quat w)  (-> p quat_w))
 
+  (color-target obj (-> p color))
+
   ;; additional steps for rotation, state, etc
   (case (-> obj type)
     ((target)
@@ -112,6 +114,7 @@ an orb |#
 
 (define *multiplayer-mode* 'jaks)
 (defun-extern gmenu-1 (none) )
+(define-extern set-up-remote-if-null (function none))
 (define mod-on? #f)
 ;; (define *multiplayer-mode* 'orbs)
 (defun runs-every-frame ()
@@ -120,11 +123,8 @@ an orb |#
   (gmenu-1)
 
   ;; setup our own remote-player-info if we haven't yet
-  (when (not *self-player-info*)
-    (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) "barg") ;; TODO - pull this from settings I guess?
-    (set! (-> *self-player-info* color) (tgt-color purple)) ;; TODO - pull this from settings I guess?
-    )
+  (set-up-remote-if-null)
+
 
   ;; register with server if we haven't yet
   (when (and *target* (not *registered-with-server?*))
@@ -142,7 +142,7 @@ an orb |#
                   )
         (start 'play (get-continue-by-name *game-info* *lobby-continue-point*))
         )
-
+      (with-dma-buffer-add-bucket ((testbuf (-> (current-frame) debug-buf)) (bucket-id subtitle))
       (case (-> *multiplayer-info* state)
         (((mp-game-state mp-game-lobby))
           ;; jump to lobby if game is in lobby state and we're not already there
@@ -151,7 +151,14 @@ an orb |#
             (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-lobby))
             )
           ;; TODO: show players and waiting/ready state
+          
+          (draw-string-xy (string-format "TODO: show players and waiting/ready state") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
           ;; TODO: show press R2 to ready up text
+          (if (=(-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-ready))
+          (draw-string-xy (string-format "You are ready,wait for other players then press B to start the game") testbuf 10 120 (the font-color 3) (font-flags shadow kerning))
+          (draw-string-xy (string-format "You are currently not ready press B to ready up") testbuf 10 120 (the font-color 3) (font-flags shadow kerning))
+          )
+          
           (when (cpad-pressed? 0 r2)
             (case (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state)
               (((mp-tgt-state mp-tgt-lobby))
@@ -181,6 +188,7 @@ an orb |#
             (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-start))
             )
           ;; TODO: same as lobby, but also show timer
+          (draw-string-xy (string-format "Game Starting soon!!! COUNDOWN INT") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
           )
         (((mp-game-state mp-game-play-hide))
           ;; TODO: show text for who's who (toggle?)
@@ -201,14 +209,17 @@ an orb |#
               )
             (((mp-tgt-state mp-tgt-hider-start))
               ;; TODO: spawn at ? checkpoint (based on toggle), show text and timer to controls, switch to hider-play
+              (draw-string-xy (string-format "You are the SEEKER! Game starting in 72 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (start 'play (get-continue-by-name *game-info* *hider-continue-point*))
               (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-hider-play))
               )
             (((mp-tgt-state mp-tgt-hider-play))
               ;; TODO: timer and give controls
+              (draw-string-xy (string-format "You are the Hider HIDE! Seekers coming in 72 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               )
             (((mp-tgt-state mp-tgt-seeker-wait))
               ;; TODO blackout with timer
+              (draw-string-xy (string-format "You are the seeker, hiders are hiding, warping in 32 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (set-blackout-frames (seconds 30))
               )
             )
@@ -221,6 +232,7 @@ an orb |#
               )
             (((mp-tgt-state mp-tgt-ready) (mp-tgt-state mp-tgt-start))
               ;; shouldn't happen?
+              (draw-string-xy (string-format "ERROR: Unexpected state. Please tell Barg/Zed") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               )
             (((mp-tgt-state mp-tgt-hider-start))
               ;; shouldn't happen?
@@ -228,6 +240,7 @@ an orb |#
             (((mp-tgt-state mp-tgt-hider-play))
               ;; TODO: show text
               ;; TODO: optionally freeze
+              (draw-string-xy (string-format "You are hider, there are 1 Seekers and HIDER/TOTALHIDER alive") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (case (-> *multiplayer-info* players (-> *multiplayer-info* player_num) role)
                 (((mp-game-role found))
                   (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-hider-found))
@@ -235,9 +248,11 @@ an orb |#
                 )
               )
             (((mp-tgt-state mp-tgt-hider-found))
+              (draw-string-xy (string-format "You were found by DEFAULT and placed POSITION/TOTALHIDER") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               ;; TODO: freeze inputs, timer then return to lobby 
               )
             (((mp-tgt-state mp-tgt-seeker-wait))
+              (draw-string-xy (string-format "You are the seeker, hiders are hiding, warping in 45 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               ;; TODO: show text and timer to controls
               (start 'play (get-continue-by-name *game-info* *seeker-continue-point*))
               (set-blackout-frames 0)
@@ -261,9 +276,12 @@ an orb |#
           )
         (((mp-game-state mp-game-end))
           ;; TODO: show text about who won, stats, idfk
+          (draw-string-xy (string-format "Epic Victory by USERNAME, Going back to lobby in TIMEOUT") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
           )
         )
       )
+
+    )
 
     ;; if never synced positions, or its been X ms, request updated positions
     (when (or (not *last-position-sync-time*)
@@ -330,10 +348,6 @@ an orb |#
                 (obj (the process-drawable (handle->process (-> *remote-targets* idx)))))
             (when obj
               (position-actor obj p)
-              (if (= (-> p role) (mp-game-role seeker))
-                (color-target obj (tgt-color holo)) ;; seekers are holo
-                (color-target obj (-> p color)) ;; otherwise use player's choice
-                )
               )
             )
           )
@@ -341,10 +355,7 @@ an orb |#
       )
 
     ;; color ourselves
-    (if (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) role) (mp-game-role seeker))
-      (color-target *target* (tgt-color holo)) ;; seekers are holo
-      (color-target *target* (-> *self-player-info* color)) ;; otherwise use player's choice
-      )
+    (color-target *target* (-> *self-player-info* color)) ;; otherwise use player's choice
     )
   (none)
   )

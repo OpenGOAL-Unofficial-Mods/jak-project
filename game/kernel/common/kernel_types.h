@@ -65,6 +65,8 @@ struct MultiplayerInfo {
   s32 player_num;
   RemotePlayerInfo players[MAX_MULTIPLAYER_COUNT];
   u32 state; // mp-game-state enum
+  s32 alert_found_pnum;
+  s32 alert_seeker_pnum;
   u32 level_mode;
   u32 continue_point_mode;
   s32 num_seekers;

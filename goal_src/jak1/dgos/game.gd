@@ -344,6 +344,7 @@
   "plat-eco.o"
   "ropebridge.o"
   "ticky.o"
+  "personal-temp-settings.o"
   "hud-classes-pc.o" ;; added
   "mods-settings.o" ;; added
   "define-custom-functions-here.o" ;; added

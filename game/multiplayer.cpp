@@ -14,7 +14,7 @@
 #include "game/kernel/jak1/kscheme.h"
 #include "game/runtime.h"
 
-//std::string ipAddressOrHostname = "localhost:8080";
+//std::string ipAddressOrHostname = "localhost:25560";
 std::string ipAddressOrHostname = "78.108.218.126:25560";
 std::stringstream urlStream;
 
@@ -171,6 +171,10 @@ void http_get() {
       // game state
       int game_state = response_json["game_state"];
       gMultiplayerInfo->state = game_state;
+      int alert_found_pnum = response_json["alert_found_pnum"];
+      gMultiplayerInfo->alert_found_pnum = alert_found_pnum;
+      int alert_seeker_pnum = response_json["alert_seeker_pnum"];
+      gMultiplayerInfo->alert_seeker_pnum = alert_seeker_pnum;
 
       // players
       for (const auto& item : response_json["players"].items()) {
