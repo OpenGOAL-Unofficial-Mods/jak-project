@@ -22,6 +22,7 @@ an orb |#
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *multiplayer-info* (new 'global 'multiplayer-info))
+(define *hide-and-seek-info* (new 'global 'hide-and-seek-game-info-struct))
 (define *registered-with-server?* #f)
 (define *last-position-sync-time* (the-as time-frame #f))
 (define *lobby-continue-point* "spyro2-autumnplains-start")
