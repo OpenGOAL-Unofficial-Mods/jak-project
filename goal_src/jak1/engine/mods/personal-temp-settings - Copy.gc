@@ -1,0 +1,18 @@
+;;-*-Lisp-*-
+(in-package goal)
+
+;; name: put-custom-code-here.gc
+;; name in dgo: put-custom-code-here
+;; dgos: TODO
+
+  ;; setup our own remote-player-info if we haven't ye
+  
+  (defun set-up-remote-if-null ()
+  (when  (not *self-player-info*) (not (= (-> *self-player-info* username) 60823732))
+    (set! *self-player-info* (new 'global 'remote-player-info))
+    (set! (-> *self-player-info* username) "zed") ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* color) (tgt-color yellow)) ;; TODO - pull this from settings I guess?
+    )
+    (none))
+  ;; register with server if we haven't yet
+ 
