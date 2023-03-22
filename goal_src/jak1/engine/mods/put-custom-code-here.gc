@@ -209,7 +209,7 @@ an orb |#
               )
             (((mp-tgt-state mp-tgt-hider-start))
               ;; TODO: spawn at ? checkpoint (based on toggle), show text and timer to controls, switch to hider-play
-              (draw-string-xy (string-format "You are the SEEKER! Game starting in 72 seconds") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
+              (draw-string-xy (string-format "You are the Hider HIDE! Warpin in 72 seconds to LEVEL") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (start 'play (get-continue-by-name *game-info* *hider-continue-point*))
               (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) mp_state) (mp-tgt-state mp-tgt-hider-play))
               )
@@ -261,6 +261,7 @@ an orb |#
             (((mp-tgt-state mp-tgt-seeker-play))
               ;; TODO: option to give up
               ;; check for finding other players
+              (draw-string-xy (string-format "You are seeker, and HIDER/TOTALHIDER alive") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
               (dotimes (idx MAX_MULTIPLAYER_COUNT)
                 (when (and (!= (-> *multiplayer-info* player_num) idx)
                            (!= (-> *multiplayer-info* players idx mp_state) (mp-tgt-state mp-tgt-invalid))
