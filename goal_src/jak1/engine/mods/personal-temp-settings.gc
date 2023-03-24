@@ -10,7 +10,7 @@
   (defun set-up-remote-if-null ()
   (when  (not *self-player-info*) (not (= (-> *self-player-info* username) 60823732))
     (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) "blarg") ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* username) "barg") ;; TODO - pull this from settings I guess?
     (set! (-> *self-player-info* color) (tgt-color purple)) ;; TODO - pull this from settings I guess?
     )
     (none))
