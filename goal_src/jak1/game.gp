@@ -1628,14 +1628,6 @@
 (build-custom-level "test-zone")
 ;; the DGO file
 (custom-level-cgo "TSZ.DGO" "test-zone/testzone.gd")
-(build-custom-level "SM64-BombombBattlefield")
-(custom-level-cgo "BMB.DGO" "SM64-BombombBattlefield/testzone.gd")
-
-(build-custom-level "spyro2-autumnplains")
-(custom-level-cgo "SPYROATM.DGO" "spyro2-autumnplains/testzone.gd")
-
-(build-custom-level "AMOUNGUS-SKLED")
-(custom-level-cgo "SUS.DGO" "AMOUNGUS-SKLED/testzone.gd")
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Game Engine Code
@@ -2062,7 +2054,8 @@
 (goal-src "pc/features/autosplit.gc" "autosplit-h" "task-control-h" "progress-static")
 (goal-src "pc/features/speedruns.gc" "speedruns-h" "autosplit-h")
 (goal-src "pc/pckernel-h.gc" "dma-buffer")
-(goal-src "pc/pckernel-impl.gc" "pckernel-h")
+(goal-src "engine/mods/mods-settings-h.gc")
+(goal-src "pc/pckernel-impl.gc" "pckernel-h" "mods-settings-h")
 (goal-src "pc/util/pc-anim-util.gc" "target-h")
 (goal-src "pc/pckernel-common.gc" "pckernel-impl" "pc-anim-util" "settings" "video" "target-h" "autosplit-h" "speedruns-h")
 (goal-src "pc/pckernel.gc" "pckernel-common")
@@ -2079,12 +2072,11 @@
 (goal-src-sequence
  ;; prefix
  "engine/"
- :deps ("$OUT/obj/battlecontroller.o" "$OUT/obj/snow-bunny.o" "$OUT/obj/baby-spider.o" "$OUT/obj/sage-village3.o" "$OUT/obj/sage-finalboss.o" "$OUT/obj/assistant-citadel.o" "$OUT/obj/assistant-lavatube.o" "$OUT/obj/robocave-part.o" "$OUT/obj/driller-lurker.o" "$OUT/obj/training-part.o" "$OUT/obj/rolling-race-ring.o" "$OUT/obj/beach-part.o" "$OUT/obj/sculptor.o" "$OUT/obj/sunken-fish.o" "$OUT/obj/billy.o" "$OUT/obj/sidekick-human.o" "$OUT/obj/flying-lurker.o" "$OUT/obj/target-racer-h.o" "$OUT/obj/firecanyon-obs.o" "$OUT/obj/target-flut.o" "$OUT/obj/hud-classes-pc.o" "$OUT/obj/collide-reaction-racer.o" "$OUT/obj/plant-boss.o" "$OUT/obj/beach-obs.o" "$OUT/obj/sunken-elevator.o" "$OUT/obj/jungle-part.o" "$OUT/obj/sequence-a-village1.o" "$OUT/obj/ticky.o")
+ :deps ("$OUT/obj/battlecontroller.o" "$OUT/obj/battlecontroller.o" "$OUT/obj/snow-bunny.o" "$OUT/obj/baby-spider.o" "$OUT/obj/sage-village3.o" "$OUT/obj/sage-finalboss.o" "$OUT/obj/assistant-citadel.o" "$OUT/obj/assistant-lavatube.o" "$OUT/obj/robocave-part.o" "$OUT/obj/driller-lurker.o" "$OUT/obj/training-part.o" "$OUT/obj/rolling-race-ring.o" "$OUT/obj/beach-part.o" "$OUT/obj/sculptor.o" "$OUT/obj/sunken-fish.o" "$OUT/obj/billy.o" "$OUT/obj/sidekick-human.o" "$OUT/obj/flying-lurker.o" "$OUT/obj/target-racer-h.o" "$OUT/obj/firecanyon-obs.o" "$OUT/obj/target-flut.o" "$OUT/obj/hud-classes-pc.o" "$OUT/obj/collide-reaction-racer.o" "$OUT/obj/plant-boss.o" "$OUT/obj/beach-obs.o" "$OUT/obj/sunken-elevator.o" "$OUT/obj/jungle-part.o" "$OUT/obj/sequence-a-village1.o" "$OUT/obj/ticky.o")
  "mods/mods-settings.gc"
  "mods/define-custom-functions-here.gc"
  
  "mods/put-custom-code-here.gc"
- "mods/personal-temp-settings.gc"
  "mods/hide-and-seek-multi-devonly.gc"
 )
 
