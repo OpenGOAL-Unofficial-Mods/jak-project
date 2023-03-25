@@ -7,12 +7,12 @@
 
   ;; setup our own remote-player-info if we haven't ye
   
-  (defun set-up-remote-if-null ()
-  (when  (not *self-player-info*) (not (= (-> *self-player-info* username) 60823732))
-    (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) (-> *pc-settings* username)) ;; TODO - pull this from settings I guess?
-    (set! (-> *self-player-info* color) (-> *pc-settings* tgt-color)) ;; TODO - pull this from settings I guess?
-    )
-    (none))
+  ;; (defun set-up-remote-if-null ()
+  ;; (when  (not *self-player-info*) (not (= (-> *self-player-info* username) 60823732))
+  ;;   (set! *self-player-info* (new 'global 'remote-player-info))
+  ;;   (set! (-> *self-player-info* username) (-> *pc-settings* username)) ;; TODO - pull this from settings I guess?
+  ;;   (set! (-> *self-player-info* color) (-> *pc-settings* tgt-color)) ;; TODO - pull this from settings I guess?
+  ;;   )
+  ;;   (none))
   ;; register with server if we haven't yet
  

@@ -88,21 +88,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
       )
   )
 
-#|(defenum tgt-color
-  :type uint32
-  (normal)
-  (green)
-  (blue)
-  (red)
-  (yellow)
-  (white)
-  (black)
-  (purple)
-  (pink)
-  (light-blue)
-  (holo)
-  )|#
-
 (defun-debug tgt-color->string ((cmd tgt-color))
   (enum->string tgt-color cmd)
   )
@@ -124,10 +109,9 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     (set! (-> obj role) (mp-game-role hider))
     (set! (-> obj mp_state) (mp-tgt-state mp-tgt-invalid))
     (set! (-> obj collected_by_pnum) -1)
-    (set! (-> obj rank)-1)
+    (set! (-> obj rank) -1)
     obj
   )
-
   )
 
 (deftype remote-player-info (structure)

@@ -32,8 +32,8 @@ an orb |#
 
   ;; register with server if we haven't yet
   (when (and *target* (not *registered-with-server?*))
-    (pc-http-register *multiplayer-info* *self-player-info* *hide-and-seek-info*)
-    (set! *registered-with-server?* #t)
+    ;; (pc-http-register *multiplayer-info* *self-player-info* *hide-and-seek-info*)
+    ;; (set! *registered-with-server?* #t)
     ;; wait a bit to ensure registration before syncing position
     (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 1.0)))
     )

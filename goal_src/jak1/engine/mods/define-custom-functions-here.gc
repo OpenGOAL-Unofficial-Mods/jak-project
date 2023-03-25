@@ -48,9 +48,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (define *hider-continue-point* "village2-start")
 (define *seeker-continue-point* "village2-dock")
 
-(defun-extern start-extra-target handle)
-(defun-extern position-actor process-drawable remote-player-info hns-player-info none)
-
 ;;STRING Variables (most of these are obsolete now)
 (define *warp-hider-lobby->game* 72)
 (define *warp-seeker-lobby->game* 45)
@@ -67,7 +64,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 
 (define *multiplayer-mode* 'jaks)
 (defun-extern gmenu-1 (none) )
-(define-extern set-up-remote-if-null (function none))
 (define mod-on? #f)
 ;; (define *multiplayer-mode* 'orbs)
 
@@ -83,11 +79,11 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 
   
 (defun set-up-remote-if-null ()
-  (when  (not *self-player-info*) (not (= (-> *self-player-info* username) 60823732))
+  (when (not *self-player-info*)
     (set! *self-player-info* (new 'global 'remote-player-info))
     (set! (-> *self-player-info* username) (-> *pc-settings* username)) ;; TODO - pull this from settings I guess?
     (set! (-> *self-player-info* color) (the-as tgt-color (-> *pc-settings* tgt-color))) ;; TODO - pull this from settings I guess?
-  )
+    )
   (none)
 )
 
@@ -115,6 +111,69 @@ If we are not the admin, wait for a time, then get the updated settings from the
 |#
 (none)
 )
+
+(defun position-actor ((obj process-drawable) (p remote-player-info))
+  ;; position
+  (set! (-> obj root trans x) (-> p trans_x))
+  (set! (-> obj root trans y) (-> p trans_y))
+  (set! (-> obj root trans z) (-> p trans_z))
+  ;; rotation
+  (set! (-> obj root quat x)  (-> p quat_x))
+  (set! (-> obj root quat y)  (-> p quat_y))
+  (set! (-> obj root quat z)  (-> p quat_z))
+  (set! (-> obj root quat w)  (-> p quat_w))
+
+  (color-target obj (-> p color))
+
+  ;; additional steps for rotation, state, etc
+  (case (-> obj type)
+    ((target)
+      (let* ((t (the target obj))
+             (local-seeker? (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info role) (mp-game-role seeker)))
+             (remote-seeker? (= (-> p hns_info role) (mp-game-role seeker)))
+             )
+        ;; draw usernames if both players are seekers/hiders
+        (when (= local-seeker? remote-seeker?)
+          (add-debug-text-3d
+                       #t
+                       (bucket-id debug-no-zbuf)
+                       (-> p username)
+                       (-> t root trans)
+                       (font-color white)
+                       (new 'static 'vector2h :y 16)
+                       )
+          )
+
+        ;; make invulnerable so they dont die
+        (logior! (-> t state-flags) (state-flags invulnerable))
+
+        ;; finalize rotation
+        (quaternion-copy! (-> t control dir-targ) (-> t root quat))
+          
+        ;; sync target state
+        (target-sync-state (-> p tgt_state) t)
+        )
+      )
+    ((money)
+      (let ((m (the money obj)))
+        (vector-copy! (-> m base) (-> m root trans))
+        (vector-copy! (-> m root-override root-prim world-sphere) (-> m root trans))
+        )
+      )
+    )
+    (none)
+  )
+
+(defun start-extra-target ()
+  (ppointer->handle (process-spawn
+                target
+                :init init-target
+                  (-> *game-info* current-continue)
+                :from *target-dead-pool*
+                :to *target-pool*
+                :stack *kernel-dram-stack*
+                ))
+  )
 
 (defun spawn-multiple-targets ()
  (dotimes (idx MAX_MULTIPLAYER_COUNT)
@@ -150,7 +209,7 @@ If we are not the admin, wait for a time, then get the updated settings from the
           (let ((p (-> *multiplayer-info* players idx))
                 (obj (the process-drawable (handle->process (-> *remote-targets* idx)))))
             (when obj
-              (position-actor obj p (-> p hns_info))
+              (position-actor obj p)
               )
             )
           )
@@ -316,69 +375,6 @@ If we are not the admin, wait for a time, then get the updated settings from the
     ;; (('target-yellow-jump-blast))
     )
   (none)
-  )
-
-  (defun position-actor ((obj process-drawable) (p remote-player-info) (hns hns-player-info))
-  ;; position
-  (set! (-> obj root trans x) (-> p trans_x))
-  (set! (-> obj root trans y) (-> p trans_y))
-  (set! (-> obj root trans z) (-> p trans_z))
-  ;; rotation
-  (set! (-> obj root quat x)  (-> p quat_x))
-  (set! (-> obj root quat y)  (-> p quat_y))
-  (set! (-> obj root quat z)  (-> p quat_z))
-  (set! (-> obj root quat w)  (-> p quat_w))
-
-  (color-target obj (-> p color))
-
-  ;; additional steps for rotation, state, etc
-  (case (-> obj type)
-    ((target)
-      (let* ((t (the target obj))
-             (local-seeker? (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info role) (mp-game-role seeker)))
-             (remote-seeker? (= (-> hns role) (mp-game-role seeker)))
-             )
-        ;; draw usernames if both players are seekers/hiders
-        (when (= local-seeker? remote-seeker?)
-          (add-debug-text-3d
-                       #t
-                       (bucket-id debug-no-zbuf)
-                       (-> p username)
-                       (-> t root trans)
-                       (font-color white)
-                       (new 'static 'vector2h :y 16)
-                       )
-          )
-
-        ;; make invulnerable so they dont die
-        (logior! (-> t state-flags) (state-flags invulnerable))
-
-        ;; finalize rotation
-        (quaternion-copy! (-> t control dir-targ) (-> t root quat))
-          
-        ;; sync target state
-        (target-sync-state (-> p tgt_state) t)
-        )
-      )
-    ((money)
-      (let ((m (the money obj)))
-        (vector-copy! (-> m base) (-> m root trans))
-        (vector-copy! (-> m root-override root-prim world-sphere) (-> m root trans))
-        )
-      )
-    )
-    (none)
-  )
-
-  (defun start-extra-target ()
-  (ppointer->handle (process-spawn
-                target
-                :init init-target
-                  (-> *game-info* current-continue)
-                :from *target-dead-pool*
-                :to *target-pool*
-                :stack *kernel-dram-stack*
-                ))
   )
 
 (defun get-target ((idx int))
