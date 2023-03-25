@@ -63,9 +63,8 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (define *game-state-change-time* (the-as time-frame #f))
 
 (define *multiplayer-mode* 'jaks)
-(defun-extern gmenu-1 (none) )
-(define mod-on? #f)
 ;; (define *multiplayer-mode* 'orbs)
+(defun-extern gmenu-1 (none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Define Custom Functions to call in mods
