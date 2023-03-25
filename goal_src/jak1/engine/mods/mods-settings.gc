@@ -123,6 +123,8 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (set! (-> obj role) (mp-game-role hider))
     (set! (-> obj mp_state) (mp-tgt-state mp-tgt-invalid))
+    (set! (-> obj collected_by_pnum) -1)
+    (set! (-> obj rank)-1)
     obj
   )
 
@@ -154,6 +156,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (defmethod new remote-player-info ((allocation symbol) (type-to-make type))
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (set! (-> obj username) (new 'global 'string MAX_USERNAME_LEN (the-as string #f)))
+    (set! (-> obj color) (tgt-color green))
     (set! (-> obj trans_x) 0.0)
     (set! (-> obj trans_y) 0.0)
     (set! (-> obj trans_z) 0.0)
@@ -162,6 +165,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     (set! (-> obj quat_z) 0.0)
     (set! (-> obj quat_w) 0.0)
     (set! (-> obj tgt_state) 'invalid)
+    (set! (-> obj hns_info) (new 'global 'hns-player-info))
     obj
     )
   )
