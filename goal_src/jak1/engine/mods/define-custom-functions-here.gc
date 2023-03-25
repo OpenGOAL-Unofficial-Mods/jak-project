@@ -38,37 +38,21 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *multiplayer-info* (new 'global 'multiplayer-info))
-(define *hide-and-seek-info* (new 'global 'hide-and-seek-game-info-struct))
 (define *remote-targets* (new 'global 'boxed-array handle MAX_MULTIPLAYER_COUNT))
+
+(define *self-player-info* (the-as remote-player-info #f))
+(define *game-state-change-time* (the-as time-frame #f))
+(define *last-game-state* (mp-game-state mp-game-invalid))
+
 (define *registered-with-server?* #f)
 (define *last-position-sync-time* (the-as time-frame #f))
+
 
 (define *lobby-continue-point* "spyro2-autumnplains-start")
 (define *hider-continue-point* "village2-start")
 (define *seeker-continue-point* "village2-dock")
 
-(defun-extern start-extra-target handle)
-(defun-extern position-actor process-drawable remote-player-info none)
-
-;;STRING Variables (most of these are obsolete now)
-(define *warp-hider-lobby->game* 72)
-(define *warp-seeker-lobby->game* 45)
-(define *game-countdown-time* 31)
-(define *TOTAL-SEEKERS* 1)
-(define *current-hiders* 1)
-(define *TOTAL-HIDERS* 3)
-(define *collected-by-idx* 1)
-(define *ending-position* 1)
-(define *last-winner* 1)
-(define *post-game-timeout* 3)
-(define *self-player-info* (the-as remote-player-info #f))
-(define *game-state-change-time* (the-as time-frame #f))
-
-(define *multiplayer-mode* 'jaks)
-(defun-extern gmenu-1 (none) )
-(define-extern set-up-remote-if-null (function none))
-(define mod-on? #f)
-;; (define *multiplayer-mode* 'orbs)
+(defun-extern gmenu-1 none)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Define Custom Functions to call in mods
@@ -76,23 +60,34 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 
 
 (defun reset-player-to-lobby ()
+  (format 0 "warping to lobby~%")
   (start 'play (get-continue-by-name *game-info* *lobby-continue-point*))
   (none)
   )
 
+  
+(defun set-up-remote-if-null ()
+  (when (not *self-player-info*)
+    (set! *self-player-info* (new 'global 'remote-player-info))
+    (set! (-> *self-player-info* username) (symbol->string(-> *pc-settings* username))) ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* color)  (-> *pc-settings* tgt-color)) ;; TODO - pull this from settings I guess?
+    )
+  (none)
+)
 
 (defun update-multiplayer-info()
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) username)   (-> *self-player-info* username))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) color)      (-> *self-player-info* color))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_x)    (-> *target* root trans x))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_y)    (-> *target* root trans y))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_z)    (-> *target* root trans z))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_x)     (-> *target* root quat x))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_y)     (-> *target* root quat y))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_z)     (-> *target* root quat z))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_w)     (-> *target* root quat w))
-      (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) tgt_state)  (-> *target* state name))
-)
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) username)   (-> *self-player-info* username))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) color)      (-> *self-player-info* color))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_x)    (-> *target* root trans x))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_y)    (-> *target* root trans y))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) trans_z)    (-> *target* root trans z))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_x)     (-> *target* root quat x))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_y)     (-> *target* root quat y))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_z)     (-> *target* root quat z))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) quat_w)     (-> *target* root quat w))
+  (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) tgt_state)  (-> *target* state name))
+  (none)
+  )
 
 (defun update-hide-and-seek-settings()
 #|
@@ -105,49 +100,6 @@ If we are not the admin, wait for a time, then get the updated settings from the
 |#
 (none)
 )
-
-(defun spawn-multiple-targets ()
- (dotimes (idx MAX_MULTIPLAYER_COUNT)
-      (when (!= (-> *multiplayer-info* player_num) idx)
-        (when (!= (-> *multiplayer-info* players idx mp_state) (mp-tgt-state mp-tgt-invalid))
-          ;; see if we need to spawn any remote targets
-          (when (or (zero? (-> *remote-targets* idx)) (not (handle->process (-> *remote-targets* idx))))
-            (case *multiplayer-mode*
-              (('jaks)
-                (set! (-> *remote-targets* idx) (start-extra-target))
-                )
-              (('orbs)
-                (let ((vec (new 'stack-no-clear 'vector)))
-                  (set! (-> vec x) 0.0)
-                  (set! (-> vec y) -80920.0)  ;; spawn orbs 20m under 0,0,0 so nobody can collect them (nice try zed)
-                  (set! (-> vec z) 0.0)
-                  (set! (-> *remote-targets* idx) (ppointer->handle (birth-pickup-at-point-inner
-                                                      vec
-                                                      (pickup-type money)
-                                                      (the-as float 1.0)
-                                                      #t
-                                                      *target*
-                                                      (the-as fact-info #f)
-                                                      #f  ;; no-bob
-                                                    )))
-                  )
-                )
-              )
-            )
-          ;; assume target spawned at this point 
-
-          ;; position/color remote targets
-          (let ((p (-> *multiplayer-info* players idx))
-                (obj (the process-drawable (handle->process (-> *remote-targets* idx)))))
-            (when obj
-              (position-actor obj p)
-              )
-            )
-          )
-        )
-      ) 
-)
-
 
 (defun color-target-rgb ((tgt process-drawable) (r float) (g float) (b float))
   (set! (-> tgt draw color-mult r) r)
@@ -188,12 +140,12 @@ If we are not the admin, wait for a time, then get the updated settings from the
     (((tgt-color light-blue))
       (color-target-rgb tgt 0.0 5.0 5.0)
       )
-    (((tgt-color holo))
-      (color-target-rgb tgt 
-        (rand-vu-float-range 0.0 5.0)
-        (rand-vu-float-range 0.0 5.0)
-        (rand-vu-float-range 0.0 5.0))
-      )
+    ;; (((tgt-color holo))
+    ;;   (color-target-rgb tgt 
+    ;;     (rand-vu-float-range 0.0 5.0)
+    ;;     (rand-vu-float-range 0.0 5.0)
+    ;;     (rand-vu-float-range 0.0 5.0))
+    ;;   )
     )
   )
 
@@ -308,7 +260,7 @@ If we are not the admin, wait for a time, then get the updated settings from the
   (none)
   )
 
-  (defun position-actor ((obj process-drawable) (p remote-player-info))
+(defun position-actor ((obj process-drawable) (p remote-player-info))
   ;; position
   (set! (-> obj root trans x) (-> p trans_x))
   (set! (-> obj root trans y) (-> p trans_y))
@@ -325,8 +277,8 @@ If we are not the admin, wait for a time, then get the updated settings from the
   (case (-> obj type)
     ((target)
       (let* ((t (the target obj))
-             (local-seeker? (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) role) (mp-game-role seeker)))
-             (remote-seeker? (= (-> p role) (mp-game-role seeker)))
+             (local-seeker? (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info role) (mp-game-role seeker)))
+             (remote-seeker? (= (-> p hns_info role) (mp-game-role seeker)))
              )
         ;; draw usernames if both players are seekers/hiders
         (when (= local-seeker? remote-seeker?)
@@ -360,7 +312,7 @@ If we are not the admin, wait for a time, then get the updated settings from the
     (none)
   )
 
-  (defun start-extra-target ()
+(defun start-extra-target ()
   (ppointer->handle (process-spawn
                 target
                 :init init-target
@@ -369,6 +321,48 @@ If we are not the admin, wait for a time, then get the updated settings from the
                 :to *target-pool*
                 :stack *kernel-dram-stack*
                 ))
+  )
+
+(defun spawn-multiple-targets ()
+ (dotimes (idx MAX_MULTIPLAYER_COUNT)
+    (when (!= (-> *multiplayer-info* player_num) idx)
+      (when (!= (-> *multiplayer-info* players idx hns_info mp_state) (mp-tgt-state mp-tgt-invalid))
+        ;; see if we need to spawn any remote targets
+        (when (or (zero? (-> *remote-targets* idx)) (not (handle->process (-> *remote-targets* idx))))
+          (case (-> *multiplayer-info* hide-and-seek-game-info target-hider-type)
+            (((tgt-hider-type jak))
+              (set! (-> *remote-targets* idx) (start-extra-target))
+              )
+            (((tgt-hider-type orb))
+              (let ((vec (new 'stack-no-clear 'vector)))
+                (set! (-> vec x) 0.0)
+                (set! (-> vec y) -80920.0)  ;; spawn orbs 20m under 0,0,0 so nobody can collect them (nice try zed)
+                (set! (-> vec z) 0.0)
+                (set! (-> *remote-targets* idx) (ppointer->handle (birth-pickup-at-point-inner
+                                                    vec
+                                                    (pickup-type money)
+                                                    (the-as float 1.0)
+                                                    #t
+                                                    *target*
+                                                    (the-as fact-info #f)
+                                                    #f  ;; no-bob
+                                                  )))
+                )
+              )
+            )
+          )
+        ;; assume target spawned at this point 
+
+        ;; position/color remote targets
+        (let ((p (-> *multiplayer-info* players idx))
+              (obj (the process-drawable (handle->process (-> *remote-targets* idx)))))
+          (when obj
+            (position-actor obj p)
+            )
+          )
+        )
+      )
+    ) 
   )
 
 (defun get-target ((idx int))
@@ -737,160 +731,158 @@ If we are not the admin, wait for a time, then get the updated settings from the
 
 ;;Randomizer checkpoint stuff
 
-(define *checkpoint-list-by-level-idx* 
-  (new 'static 'boxed-array :type (array string) :length 16 :allocated-length 16
-    ;; Geyser Rock
-    (new 'static 'boxed-array :type string :length 2
-      "game-start"
-      "training-far"
-    )
-    ;; Sandover
-    (new 'static 'boxed-array :type string :length 3
-      "village1-hut"
-      "village1-warp"
-      "village1-far"
-    )
-    ;; Sentinel Beach
-    (new 'static 'boxed-array :type string :length 3
-      "beach-start"
-      "beach-pelican"
-      "beach-far"
-    )
-    ;; Forbidden Jungle
-    (new 'static 'boxed-array :type string :length 3
-      "jungle-start"
-      "jungle-far"
-      "jungle-tower"
-    )
-    ;; Misty Island
-    (new 'static 'boxed-array :type string :length 5
-      "misty-start"
-      "misty-silo"
-      "misty-bike"
-      "misty-backside"
-      "misty-silo2"
-    )
-    ;; Fire Canyon
-    (new 'static 'boxed-array :type string :length 2
-      "firecanyon-start"
-      "firecanyon-end"
-    )
-    ;; Rock Village
-    (new 'static 'boxed-array :type string :length 3
-      "village2-start"
-      "village2-warp"
-      "village2-dock"
-    )
-    ;; Lost Precursor City
-    (new 'static 'boxed-array :type string :length 6
-      "sunken-start"
-      "sunken1"
-      "sunken2"
-      "sunken-tube1"
-      "sunkenb-start"
-      "sunkenb-helix"
-    )
-    ;; Boggy Swamp
-    (new 'static 'boxed-array :type string :length 8
-      "swamp-start"
-      "swamp-dock1"
-      "swamp-cave1"
-      "swamp-dock2"
-      "swamp-cave2"
-      "swamp-game"
-      "swamp-cave3"
-      "swamp-flutflut"
-    )
-    ;; Precursor Basin
-    (new 'static 'boxed-array :type string :length 1
-      "rolling-start"
-    )
-    ;; Mountain Pass
-    (new 'static 'boxed-array :type string :length 3
-      "ogre-start"
-      "ogre-race"
-      "ogre-end"
-    )
-    ;; Volcanic Crater
-    (new 'static 'boxed-array :type string :length 4
-      "village3-start"
-      "village3-warp"
-      "village3-farside"
-      "village3-cart"
-    )
-    ;; Snowy Mountain
-    (new 'static 'boxed-array :type string :length 9
-      "snow-start"
-      "snow-fort"
-      "snow-flut-flut"
-      "snow-pass-to-fort"
-      "snow-by-ice-lake"
-      "snow-by-ice-lake-alt"
-      "snow-outside-fort"
-      "snow-outside-cave"
-      "snow-across-from-flut"
-    )
-    ;; Spider Cave
-    (new 'static 'boxed-array :type string :length 6
-      "maincave-start"
-      "maincave-to-darkcave"
-      "maincave-to-robocave"
-      "darkcave-start"
-      "robocave-start"
-      "robocave-bottom"
-    )
-    ;; Lava Tube
-    (new 'static 'boxed-array :type string :length 6
-      "lavatube-start"
-      "lavatube-middle"
-      "lavatube-after-ribbon"
-      "lavatube-end"
-      "citadel-entrance"
-      "citadel-warp"
-    )
-    ;; Gol and Maia's Citadel
-    (new 'static 'boxed-array :type string :length 8
-      "citadel-start"
-      "citadel-plat-start"
-      "citadel-plat-end"
-      "citadel-launch-start"
-      "citadel-launch-end"
-      "citadel-generator-start"
-      "citadel-generator-end"
-      "citadel-elevator"
-    )
-  )
-)
-(defenum checkpoint-list-by-level-idx-names
-(Geyser) 
-(Sandover)
-(Sentinel)
-(Forbidden)
-(Misty)
-(Fire)
-(Rock)
-(Lost)
-(Boggy)
-(Basin)
-(Mountain)
-(Spider)
-(Lava)
-(Gol)
-)
+;; (define *checkpoint-list-by-level-idx* 
+;;   (new 'static 'boxed-array :type (array string) :length 16 :allocated-length 16
+;;     ;; Geyser Rock
+;;     (new 'static 'boxed-array :type string :length 2
+;;       "game-start"
+;;       "training-far"
+;;     )
+;;     ;; Sandover
+;;     (new 'static 'boxed-array :type string :length 3
+;;       "village1-hut"
+;;       "village1-warp"
+;;       "village1-far"
+;;     )
+;;     ;; Sentinel Beach
+;;     (new 'static 'boxed-array :type string :length 3
+;;       "beach-start"
+;;       "beach-pelican"
+;;       "beach-far"
+;;     )
+;;     ;; Forbidden Jungle
+;;     (new 'static 'boxed-array :type string :length 3
+;;       "jungle-start"
+;;       "jungle-far"
+;;       "jungle-tower"
+;;     )
+;;     ;; Misty Island
+;;     (new 'static 'boxed-array :type string :length 5
+;;       "misty-start"
+;;       "misty-silo"
+;;       "misty-bike"
+;;       "misty-backside"
+;;       "misty-silo2"
+;;     )
+;;     ;; Fire Canyon
+;;     (new 'static 'boxed-array :type string :length 2
+;;       "firecanyon-start"
+;;       "firecanyon-end"
+;;     )
+;;     ;; Rock Village
+;;     (new 'static 'boxed-array :type string :length 3
+;;       "village2-start"
+;;       "village2-warp"
+;;       "village2-dock"
+;;     )
+;;     ;; Lost Precursor City
+;;     (new 'static 'boxed-array :type string :length 6
+;;       "sunken-start"
+;;       "sunken1"
+;;       "sunken2"
+;;       "sunken-tube1"
+;;       "sunkenb-start"
+;;       "sunkenb-helix"
+;;     )
+;;     ;; Boggy Swamp
+;;     (new 'static 'boxed-array :type string :length 8
+;;       "swamp-start"
+;;       "swamp-dock1"
+;;       "swamp-cave1"
+;;       "swamp-dock2"
+;;       "swamp-cave2"
+;;       "swamp-game"
+;;       "swamp-cave3"
+;;       "swamp-flutflut"
+;;     )
+;;     ;; Precursor Basin
+;;     (new 'static 'boxed-array :type string :length 1
+;;       "rolling-start"
+;;     )
+;;     ;; Mountain Pass
+;;     (new 'static 'boxed-array :type string :length 3
+;;       "ogre-start"
+;;       "ogre-race"
+;;       "ogre-end"
+;;     )
+;;     ;; Volcanic Crater
+;;     (new 'static 'boxed-array :type string :length 4
+;;       "village3-start"
+;;       "village3-warp"
+;;       "village3-farside"
+;;       "village3-cart"
+;;     )
+;;     ;; Snowy Mountain
+;;     (new 'static 'boxed-array :type string :length 9
+;;       "snow-start"
+;;       "snow-fort"
+;;       "snow-flut-flut"
+;;       "snow-pass-to-fort"
+;;       "snow-by-ice-lake"
+;;       "snow-by-ice-lake-alt"
+;;       "snow-outside-fort"
+;;       "snow-outside-cave"
+;;       "snow-across-from-flut"
+;;     )
+;;     ;; Spider Cave
+;;     (new 'static 'boxed-array :type string :length 6
+;;       "maincave-start"
+;;       "maincave-to-darkcave"
+;;       "maincave-to-robocave"
+;;       "darkcave-start"
+;;       "robocave-start"
+;;       "robocave-bottom"
+;;     )
+;;     ;; Lava Tube
+;;     (new 'static 'boxed-array :type string :length 6
+;;       "lavatube-start"
+;;       "lavatube-middle"
+;;       "lavatube-after-ribbon"
+;;       "lavatube-end"
+;;       "citadel-entrance"
+;;       "citadel-warp"
+;;     )
+;;     ;; Gol and Maia's Citadel
+;;     (new 'static 'boxed-array :type string :length 8
+;;       "citadel-start"
+;;       "citadel-plat-start"
+;;       "citadel-plat-end"
+;;       "citadel-launch-start"
+;;       "citadel-launch-end"
+;;       "citadel-generator-start"
+;;       "citadel-generator-end"
+;;       "citadel-elevator"
+;;     )
+;;   )
+;; )
+
+;; (defenum checkpoint-list-by-level-idx-names
+;;   (Geyser) 
+;;   (Sandover)
+;;   (Sentinel)
+;;   (Forbidden)
+;;   (Misty)
+;;   (Fire)
+;;   (Rock)
+;;   (Lost)
+;;   (Boggy)
+;;   (Basin)
+;;   (Mountain)
+;;   (Spider)
+;;   (Lava)
+;;   (Gol)
+;;   )
 
 
-(defun random-checkpoint-by-level-idx ((rand int))
-
-          (let ((random-level-idx rand))
-            ;; ...then choose random checkpoint within that level
-            (let ((random-level-checkpoint-idx (knuth-rand-int-range 0 (-> *checkpoint-list-by-level-idx* random-level-idx length))))
-              (-> *checkpoint-list-by-level-idx* 
-                random-level-idx 
-                random-level-checkpoint-idx
-                )
-              )
-            )
-)
+;; (defun random-checkpoint-by-level-idx ((level-idx int))
+;;   ;; ...then choose random checkpoint within that level
+;;   (let ((random-level-checkpoint-idx (knuth-rand-int-range 0 (-> *checkpoint-list-by-level-idx* level-idx length))))
+;;     (-> *checkpoint-list-by-level-idx* 
+;;       level-idx 
+;;       random-level-checkpoint-idx
+;;       )
+;;     )
+;;   )
 
 
 

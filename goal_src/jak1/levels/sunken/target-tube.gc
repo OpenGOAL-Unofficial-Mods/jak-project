@@ -813,7 +813,7 @@
         (s5-3 s4-2 (t9-9 a0-35 1.0) (vector-y-quaternion! (new-stack-vector0) (-> self control dir-targ)))
         )
       (if (and (= (-> self game mode) 'play) (>= 0.0 (-> self fact-info-target health)))
-          (go target-tube-death (-> gp-0 mode))
+          (if (= self *target*) (go target-tube-death (-> gp-0 mode)))
           )
       )
     (go target-tube)

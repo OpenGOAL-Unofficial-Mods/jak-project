@@ -145,7 +145,7 @@ class RequestHandler(BaseHTTPRequestHandler):
           PLAYER_IDX_LOOKUP[username[0]] = player_num
 
           # fill out empty keys
-          PLAYER_LIST.append({})
+          PLAYER_LIST.append({"mp_state": MpTargetState.INVALID.value})
 
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -333,6 +333,12 @@ def game_loop():
           print("PLAY_SEEK -> END (no seekers - hiders win)")
           MP_INFO["state"] = MpGameState.END
           last_state_change_time = time.time()
+        # if no seekers or hiders... end game?
+        if active_hiders == 0 and active_seekers == 0:
+          print("PLAY_SEEK -> END (no seekers, no hiders???)")
+          MP_INFO["state"] = MpGameState.END
+          last_state_change_time = time.time()
+
       case MpGameState.END:
         # see if 15s timer is up and we should go back to lobby
         if time.time() - last_state_change_time >= 15:

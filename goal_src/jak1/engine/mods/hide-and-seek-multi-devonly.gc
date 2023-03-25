@@ -69,7 +69,8 @@ Server/Game Settings
 State: ~S
 Found: ~D By: ~D"
               (enum->string mp-game-state (-> *multiplayer-info* state))
-              (-> *hide-and-seek-info* alert-found-pnum) (-> *hide-and-seek-info* alert-seeker-pnum)
+              (-> *multiplayer-info* hide-and-seek-game-info alert-found-pnum)
+              (-> *multiplayer-info* hide-and-seek-game-info alert-seeker-pnum)
               )
             testbuf 10 y-coord (the font-color col-int) (font-flags shadow kerning)
             )
@@ -83,9 +84,9 @@ Player Num: ~D
 Multiplayer State: ~S"
               (if (= idx (-> *multiplayer-info* player_num)) "Current " "")  ;; Append "Current" for yourself
               idx
-              (enum->string mp-tgt-state (-> *multiplayer-info* players idx mp_state))
+              (enum->string mp-tgt-state (-> *multiplayer-info* players idx hns_info mp_state))
               )
-            (when (!= (-> *multiplayer-info* players idx mp_state) (mp-tgt-state mp-tgt-invalid))
+            (when (!= (-> *multiplayer-info* players idx hns_info mp_state) (mp-tgt-state mp-tgt-invalid))
               (format *temp-string* "~%Username: ~S
 Player Position: ~M ~M ~M"
                 (-> *multiplayer-info* players idx username)

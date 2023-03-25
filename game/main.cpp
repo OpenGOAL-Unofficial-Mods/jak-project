@@ -18,6 +18,8 @@
 #include "game/common/game_common_types.h"
 
 #include "third-party/CLI11.hpp"
+//hide and seek hack
+#include "multiplayer.h"
 
 #ifdef _WIN32
 extern "C" {
@@ -80,7 +82,7 @@ std::string game_arg_documentation() {
  */
 int main(int argc, char** argv) {
   ArgumentGuard u8_guard(argc, argv);
-
+  set_multiplayer_from_json();
   // TODO - this is a temporary shim to convert the old arg format
   // into the new
   //

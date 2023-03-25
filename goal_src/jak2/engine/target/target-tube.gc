@@ -876,7 +876,7 @@
           (('bot)
            (pickup-collectable! (-> self fact-override) (pickup-type health) -1000.0 (the-as handle #f))
            (if (= (-> self game mode) 'play)
-               (go target-death (-> gp-0 mode))
+               (if (= self *target*) (go target-death (-> gp-0 mode)))
                )
            )
           (else
@@ -913,7 +913,7 @@
         (s5-2 s4-1 (t9-9 a0-58 1.0) (vector-y-quaternion! (new-stack-vector0) (-> self control dir-targ)))
         )
       (if (and (= (-> self game mode) 'play) (>= 0.0 (-> self fact-override health)))
-          (go target-tube-death (-> gp-0 mode))
+          (if (= self *target*) (go target-tube-death (-> gp-0 mode)))
           )
       )
     (go target-tube)

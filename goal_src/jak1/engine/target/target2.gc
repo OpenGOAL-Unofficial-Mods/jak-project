@@ -2563,7 +2563,7 @@
     (cond
       ((and (= (-> self game mode) 'play) (>= 0.0 (-> self fact-info-target health)))
        (set! (-> self attack-info attacker) (the-as handle #f))
-       (go target-death 'target-hit-ground-hard)
+       (if (= self *target*) (go target-death 'target-hit-ground-hard))
        )
       (else
         (cpad-set-buzz! (-> *cpad-list* cpads 0) 1 255 (seconds 0.1))
