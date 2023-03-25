@@ -5,38 +5,6 @@
 ;; name in dgo: mods-settings
 ;; dgos: TODO
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; What is this file for.
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-#| This file is a place where you can define custom functions and GOAL code
- to call inside of put-custom-code-here.gc for example I have defined a function that increases
- the powercell count by one when it is called
- |#
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Useful GOAL modding documentation
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-#| 
-Checks the condition and if it is true it does first argument if false it does optional second argument
-(if (condition) (do if true) (do if false))
-
-Gives a random FLOAT or INT between the provided ranges when called
-(rand-vu-float-range 0.0 2.0)
-(rand-vu-int-range 0 10)
-
-if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't dance
-(if (= (rand-vu-int-range 0 10) 1) (DANCE!) (Don't dance))
-
-
-|#
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Define Settings to use in mods
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (define startingDebugContinuePoint "village1-hut")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -107,6 +75,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   )
 
 ;;TODO     (set! (-> obj last-winner) -1)
+;;TODO     Add a field for the checkpoint to warp? (we can generate this locally but maybe for some modes spawning at same checkpoint is good? )
 ;; This contains data specific to the hide and seek game mode that should be synced with all clients
   (deftype hide-and-seek-game-info-struct (structure)
   (
@@ -169,7 +138,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (deftype multiplayer-info (structure)
  ((game-type-mode       symbol);;This is future proofing to allow other gamemodes in the codebase
   (player_num           int32)
-  (lobby-name          symbol)
+  (lobby-name          symbol);;Name of the checkpoint that we should warp the players to for lobby.
   (players    remote-player-info MAX_MULTIPLAYER_COUNT :inline)
   (hide-and-seek-game-info    hide-and-seek-game-info-struct :inline)
   (state        mp-game-state)

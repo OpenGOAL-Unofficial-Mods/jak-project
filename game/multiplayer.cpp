@@ -13,9 +13,57 @@
 
 #include "game/kernel/jak1/kscheme.h"
 #include "game/runtime.h"
+#include "third-party/json.hpp"
+#include <filesystem>
+#include <fstream>
 
-std::string ipAddressOrHostname = "localhost:25560";
-//std::string ipAddressOrHostname = "78.108.218.126:25560";
+using json = nlohmann::json;
+
+std::string ipAddressOrHostname = "78.108.218.126:25560";
+
+//This approach WILL break on release builds
+void set_multiplayer_from_json() {
+  // Get the current working directory
+  std::filesystem::path currentDir = std::filesystem::current_path();
+
+  // Walk back recursively until a directory called "jak-project" is found
+  while (!currentDir.empty() && currentDir.filename() != "jak-project") {
+    currentDir = currentDir.parent_path();
+  }
+
+  // Check if "jak-project" directory was found
+  if (currentDir.empty()) {
+    // Directory not found, set default values
+    ipAddressOrHostname = "localhost:25560";
+    return;
+  }
+
+  // Construct the path to the config.json file in the "jak-project/config" directory
+  std::filesystem::path configPath = currentDir / "config" / "multiplayerconfig.json";
+
+  // Check if the config.json file exists
+  if (!std::filesystem::exists(configPath)) {
+    // File not found, set default values
+    ipAddressOrHostname = "localhost:25560";
+    return;
+  }
+
+  // Read the JSON from the config file
+  std::ifstream ifs(configPath);
+  json config;
+  ifs >> config;
+
+  // Check if the "useExternalServer" key is set to true in the JSON file
+  bool useExternalServer = config["useExternalServer"];
+
+  // Set the ipAddressOrHostname variable based on the value of useExternalServer
+  if (useExternalServer) {
+    ipAddressOrHostname = config["externalServerAddress"];
+  } else {
+    ipAddressOrHostname = "localhost:25560";
+  }
+}
+
 std::stringstream urlStream;
 
 size_t curl_write_callbacka(char* ptr, size_t size, size_t nmemb, void* userdata) {
