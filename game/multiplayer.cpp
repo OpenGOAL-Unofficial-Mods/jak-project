@@ -27,12 +27,10 @@ size_t curl_write_callbacka(char* ptr, size_t size, size_t nmemb, void* userdata
 
 MultiplayerInfo* gMultiplayerInfo;
 RemotePlayerInfo* gSelfPlayerInfo;
-HideAndSeekGameInfoStruct* gHideAndSeekGameInfoStruct;
 String* uname;
 
-void http_register(u64 mpInfo, u64 selfPlayerInfo, u64 HideandSeekGameInfo) {
+void http_register(u64 mpInfo, u64 selfPlayerInfo) {
   gMultiplayerInfo = Ptr<MultiplayerInfo>(mpInfo).c();
-  gHideAndSeekGameInfoStruct = Ptr<HideAndSeekGameInfoStruct>(HideandSeekGameInfo).c();
   gSelfPlayerInfo = Ptr<RemotePlayerInfo>(selfPlayerInfo).c();
   uname = Ptr<String>(gSelfPlayerInfo->username).c();
 
@@ -67,6 +65,8 @@ void http_register(u64 mpInfo, u64 selfPlayerInfo, u64 HideandSeekGameInfo) {
       // Extract values from JSON response
       int player_num = response_json["player_num"];
       gMultiplayerInfo->player_num = player_num;
+      RemotePlayerInfo* ownRpInfo = &(gMultiplayerInfo->players[gMultiplayerInfo->player_num]);
+      strncpy(Ptr<String>(ownRpInfo->username).c()->data(), username.c_str(), MAX_USERNAME_LEN);
       int game_state = response_json["game_state"];
       gMultiplayerInfo->state = game_state;
     }
@@ -174,9 +174,9 @@ void http_get() {
       int game_state = response_json["game_state"];
       gMultiplayerInfo->state = game_state;
       int alert_found_pnum = response_json["alert_found_pnum"];
-      gHideAndSeekGameInfoStruct->alert_found_pnum = alert_found_pnum;
+      gMultiplayerInfo->hide_and_seek_game_info.alert_found_pnum = alert_found_pnum;
       int alert_seeker_pnum = response_json["alert_seeker_pnum"];
-      gHideAndSeekGameInfoStruct->alert_seeker_pnum = alert_seeker_pnum;
+      gMultiplayerInfo->hide_and_seek_game_info.alert_seeker_pnum = alert_seeker_pnum;
 
       // players
       for (const auto& item : response_json["players"].items()) {
@@ -208,7 +208,7 @@ void http_get() {
             } else if (field.key().compare("tgt_state") == 0) {
               rpInfo->tgt_state = field.value();
             } else if (field.key().compare("role") == 0) {
-              Ptr<HnsPlayerInfo>(rpInfo->hns_info).c()->role = field.value();
+              rpInfo->hns_info.role = field.value();
             } else if (field.key().compare("mp_state") == 0
               && pNum != gMultiplayerInfo->player_num) { // only sync mp_state for remotes. for our own target, only goal code should be updating this
               rpInfo->hns_info.mp_state = field.value();

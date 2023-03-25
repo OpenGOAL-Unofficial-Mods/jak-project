@@ -38,7 +38,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *multiplayer-info* (new 'global 'multiplayer-info))
-(define *hide-and-seek-info* (new 'global 'hide-and-seek-game-info-struct))
 (define *remote-targets* (new 'global 'boxed-array handle MAX_MULTIPLAYER_COUNT))
 
 (define *self-player-info* (the-as remote-player-info #f))

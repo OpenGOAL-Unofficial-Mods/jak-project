@@ -53,6 +53,7 @@ const int MAX_USERNAME_LEN = 100;
 struct RemotePlayerInfo {
   u32 username; // string (basic)
   u32 color;  // tgt-color enum
+  s32 is_admin; // #t / #f
   float trans_x;
   float trans_y;
   float trans_z;

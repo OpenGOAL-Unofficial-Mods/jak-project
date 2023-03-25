@@ -49,7 +49,8 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (collected_by_pnum  int32)
   (rank               int32)
   )
-    (:methods
+  :pack-me
+  (:methods
     (new (symbol type) _type_ 0)
     )
   )
@@ -77,7 +78,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (quat_z     float)
   (quat_w     float)
   (tgt_state  symbol)
-  (hns_info   hns-player-info)  ;; hide-n-seek specific info
+  (hns_info   hns-player-info :inline)  ;; hide-n-seek specific info
   )
   :pack-me
   (:methods
@@ -101,7 +102,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     (set! (-> obj quat_z) 0.0)
     (set! (-> obj quat_w) 0.0)
     (set! (-> obj tgt_state) 'invalid)
-    (set! (-> obj hns_info) (new 'global 'hns-player-info))
     obj
     )
   )
@@ -110,29 +110,30 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 ;; This contains data specific to the hide and seek game mode that should be synced with all clients
   (deftype hide-and-seek-game-info-struct (structure)
   (
-  ;; admin-driven settings
-  (target-hider-type        tgt-hider-type);;Jak or orb
-  (level-mode               hns-level-mode);;Random level, Hub, or level symbol
-  (continue-point-mode      hns-continue-pt-mode);;Spawn seekers/hiders at same checkpoint or random in level
-  (hiders-move?             symbol);;Allow movement/dont after a countdown
-  (hiders-pause-zoom?       symbol);;Disable zooming and pause for hiders if they are using it to cheat.
-  (seekers-infect?          symbol);;Future feature 
-  (num-seekers              int32);; Number of seekers in a given match
-  (last-winner-as-seeker?   symbol);; Can be 'RANDOM or 'LASTWINNER if lastwinner is default, or more than one seeker the rest are assigned randomly
-  (fog-distance             float);; Change the distance to see hiders
-  (hider-speed              float);; Float value that modifies a hiders speed
-  (seeker-speed             float);; Float value that modifies a seekers speed (can be under 1 to slow them)
-  (time-to-start            int32);; Time before we warp hiders from lobby into the game
-  (time-to-hide             int32);;Time before we warp seekers from lobby into the game
-  (hider-victory-timeout    int32);; If the match goes on for this length then the hiders win
-  (post-game-timeout        int32);; Time from victory -> back to lobby
+    ;; admin-driven settings
+    (target-hider-type        tgt-hider-type);;Jak or orb
+    (level-mode               hns-level-mode);;Random level, Hub, or level symbol
+    (continue-point-mode      hns-continue-pt-mode);;Spawn seekers/hiders at same checkpoint or random in level
+    (hiders-move?             symbol);;Allow movement/dont after a countdown
+    (hiders-pause-zoom?       symbol);;Disable zooming and pause for hiders if they are using it to cheat.
+    (seekers-infect?          symbol);;Future feature 
+    (num-seekers              int32);; Number of seekers in a given match
+    (last-winner-as-seeker?   symbol);; Can be 'RANDOM or 'LASTWINNER if lastwinner is default, or more than one seeker the rest are assigned randomly
+    (fog-distance             float);; Change the distance to see hiders
+    (hider-speed              float);; Float value that modifies a hiders speed
+    (seeker-speed             float);; Float value that modifies a seekers speed (can be under 1 to slow them)
+    (time-to-start            int32);; Time before we warp hiders from lobby into the game
+    (time-to-hide             int32);;Time before we warp seekers from lobby into the game
+    (hider-victory-timeout    int32);; If the match goes on for this length then the hiders win
+    (post-game-timeout        int32);; Time from victory -> back to lobby
 
-  ;; server-driven fields
-  (alert-found-pnum     int32)
-  (alert-seeker-pnum    int32)
-  (num-hiders           int32);; Number of total hiders, set this on game start
-  (num-hiders-left      int32);; Number of remaining hiders
+    ;; server-driven fields
+    (alert-found-pnum     int32)
+    (alert-seeker-pnum    int32)
+    (num-hiders           int32);; Number of total hiders, set this on game start
+    (num-hiders-left      int32);; Number of remaining hiders
   )
+  :pack-me
   (:methods
     (new (symbol type) _type_ 0)
     )
@@ -170,7 +171,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (player_num           int32)
   (lobby-name          symbol)
   (players    remote-player-info MAX_MULTIPLAYER_COUNT :inline)
-  (hide-and-seek-game-info    hide-and-seek-game-info-struct)
+  (hide-and-seek-game-info    hide-and-seek-game-info-struct :inline)
   (state        mp-game-state)
   )
   (:methods
@@ -180,13 +181,33 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 
 (defmethod new multiplayer-info ((allocation symbol) (type-to-make type))
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
+    (set! (-> obj game-type-mode) 'hide-and-seek)
     (set! (-> obj player_num) -1)
+    (set! (-> obj lobby-name) 'test-lobby)
     (dotimes (idx MAX_MULTIPLAYER_COUNT)
       (set! (-> obj players idx username) (new 'global 'string MAX_USERNAME_LEN ""))
-      (set! (-> obj players idx hns_info) (new 'global 'hns-player-info))
       )
-    (set! (-> obj hide-and-seek-game-info) (new 'global 'hide-and-seek-game-info-struct))
-    ;; (set! (-> obj state) (mp-game-state mp-game-invalid))
+    (set! (-> obj hide-and-seek-game-info target-hider-type) (tgt-hider-type jak))
+    (set! (-> obj hide-and-seek-game-info level-mode) (hns-level-mode jungle))
+    (set! (-> obj hide-and-seek-game-info continue-point-mode) (hns-continue-pt-mode same))
+    (set! (-> obj hide-and-seek-game-info hiders-move?) #t)
+    (set! (-> obj hide-and-seek-game-info hiders-pause-zoom?) #t)
+    (set! (-> obj hide-and-seek-game-info seekers-infect?) #f)
+    (set! (-> obj hide-and-seek-game-info num-seekers) 1)
+    (set! (-> obj hide-and-seek-game-info last-winner-as-seeker?) #t)
+    (set! (-> obj hide-and-seek-game-info fog-distance) 0.0)
+    (set! (-> obj hide-and-seek-game-info hider-speed) 1.0)
+    (set! (-> obj hide-and-seek-game-info seeker-speed) 1.0)
+    (set! (-> obj hide-and-seek-game-info time-to-start) 10)
+    (set! (-> obj hide-and-seek-game-info time-to-hide) 30)
+    (set! (-> obj hide-and-seek-game-info hider-victory-timeout) 300) ;; 5 minutes
+    (set! (-> obj hide-and-seek-game-info post-game-timeout) 15)
+    ;; server-driven fields
+    (set! (-> obj hide-and-seek-game-info alert-found-pnum) -1)
+    (set! (-> obj hide-and-seek-game-info alert-seeker-pnum) -1)
+    (set! (-> obj hide-and-seek-game-info num-hiders) 0)
+    (set! (-> obj hide-and-seek-game-info num-hiders-left) 0)
+    (set! (-> obj state) (mp-game-state mp-game-invalid))
     obj
     )
   )
