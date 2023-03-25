@@ -31,6 +31,7 @@
   "dma-bucket.o"
   "dma-disasm.o"
   "pckernel-h.o" ;; added
+  "mods-settings-h.o" ;; added
   "pckernel-impl.o" ;; added
   "pc-debug-common.o" ;; added
   "pc-debug-methods.o" ;; added
@@ -344,7 +345,6 @@
   "plat-eco.o"
   "ropebridge.o"
   "ticky.o"
-  "personal-temp-settings.o"
   "hud-classes-pc.o" ;; added
   "mods-settings.o" ;; added
   "define-custom-functions-here.o" ;; added

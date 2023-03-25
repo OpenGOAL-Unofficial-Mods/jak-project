@@ -42,6 +42,13 @@ struct FileStream {
   s32 file;  // int32
 };
 
+struct HnsPlayerInfo {
+  u32 role;  // mp-game-role enum
+  u32 mp_state;  // mp-tgt-state enum
+  s32 collected_by_pnum;
+  s32 rank;
+};
+
 const int MAX_USERNAME_LEN = 100;
 struct RemotePlayerInfo {
   u32 username; // string (basic)
@@ -54,33 +61,32 @@ struct RemotePlayerInfo {
   float quat_z;
   float quat_w;
   s32 tgt_state;
-  u32 role;  // mp-game-role enum
-  u32 mp_state; // mp-tgt-state enum
+  HnsPlayerInfo hns_info;
 };
 // static_assert(sizeof(RemotePlayerInfo) == 32, "RemotePlayerInfo size is wrong");
 
 struct HideAndSeekGameInfoStruct {
-  s32 alert_found_pnum;
-  s32 alert_seeker_pnum;
-  u32 remote_target_hider_type;
+  // admin-driven settings
+  u32 target_hider_type;
   u32 level_mode;
   u32 continue_point_mode;
-  s32 num_seekers;
-  s32 num_hiders;
-  s32 num_hiders_alive;
-  u32 seekers_infect;
-  s32 last_winner;
-  float hider_speed;
-  float seeker_speed;
-  u32 choose_seeker;
-  float fog_distance;
-  s32 warp_hider_lobby_game;
-  s32 warp_seeker_lobby_game;
-  s32 game_countdown_time;
-  float time_to_hide;
-  float seeker_timeout;
   u32 hiders_move;
   u32 hiders_pause_zoom;
+  u32 seekers_infect;
+  s32 num_seekers;
+  s32 last_winner_as_seeker;
+  float fog_distance;
+  float hider_speed;
+  float seeker_speed;
+  s32 time_to_start;
+  s32 time_to_hide;
+  s32 hider_victory_timeout;
+  s32 post_game_timeout;
+  // server-driven fields
+  s32 alert_found_pnum;
+  s32 alert_seeker_pnum;
+  s32 num_hiders;
+  s32 num_hiders_left;
 };
 
 const int MAX_MULTIPLAYER_COUNT = 12;
@@ -90,7 +96,7 @@ struct MultiplayerInfo {
   s32 player_num;
   s32 lobby_name;
   RemotePlayerInfo players[MAX_MULTIPLAYER_COUNT];
-  HideAndSeekGameInfoStruct hideandseekgameinfo; 
+  HideAndSeekGameInfoStruct hide_and_seek_game_info; 
   u32 state; // mp-game-state enum
 };
 //static_assert(sizeof(MultiplayerInfo) == 116, "MultiplayerInfo size is wrong");

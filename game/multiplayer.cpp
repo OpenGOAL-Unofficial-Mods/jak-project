@@ -136,7 +136,7 @@ void http_update() {
       {"quat_w", rpInfo->quat_w},
       {"tgt_state", rpInfo->tgt_state},
       // role intentionally left out, only updated from server side
-      {"mp_state", rpInfo->mp_state}
+      {"mp_state", rpInfo->hns_info.mp_state}
   };
 
   http_post_generic(url, payload);
@@ -208,10 +208,10 @@ void http_get() {
             } else if (field.key().compare("tgt_state") == 0) {
               rpInfo->tgt_state = field.value();
             } else if (field.key().compare("role") == 0) {
-              rpInfo->role = field.value();
+              rpInfo->hns_info.role = field.value();
             } else if (field.key().compare("mp_state") == 0
               && pNum != gMultiplayerInfo->player_num) { // only sync mp_state for remotes. for our own target, only goal code should be updating this
-              rpInfo->mp_state = field.value();
+              rpInfo->hns_info.mp_state = field.value();
             }
           }
         }
