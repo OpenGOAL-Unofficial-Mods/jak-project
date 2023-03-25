@@ -1,7 +1,9 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
+import copy
 from time import sleep
+import random
 import threading
 from enum import Enum
 from urllib.parse import urlparse, parse_qs
@@ -40,11 +42,13 @@ class MpTargetState(Enum):
   SEEKER_START = 8
   SEEKER_PLAY = 9
 
-MP_INFO = {
+DEFAULT_MP_INFO = {
   "state": MpGameState.INVALID,
   "alert_found_pnum": -1,
   "alert_seeker_pnum": -1,
+  "num_seekers": 1, # default to one seeker
 }
+MP_INFO = copy.deepcopy(DEFAULT_MP_INFO)
 PLAYER_IDX_LOOKUP = {}
 PLAYER_LIST = []
 
@@ -112,6 +116,10 @@ class RequestHandler(BaseHTTPRequestHandler):
       # clear
       case "/clear":
         PLAYER_LIST.clear()
+        PLAYER_IDX_LOOKUP.clear()
+        for k in DEFAULT_MP_INFO:
+          MP_INFO[k] = DEFAULT_MP_INFO[k]
+
         # Send response status code
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -253,8 +261,6 @@ def game_loop():
           if total_players == 1:
             first_player_start = True
 
-    # print(MP_INFO["state"], total_players, player_counts)
-
     # update state conditionally
     match MP_INFO["state"]:
       case MpGameState.LOBBY:
@@ -271,18 +277,34 @@ def game_loop():
       case MpGameState.STARTING_SOON:
         # see if 10s timer is up and we should begin hiding
         if time.time() - last_state_change_time >= 10:
-          # assign hiders/seekers
-          # TODO: make this random
           print("starting game, assigning roles")
-          for i in range(len(PLAYER_LIST)):
-            # skip players who weren't in start state
-            if PLAYER_LIST[i] is None or PLAYER_LIST[i] == {} or PLAYER_LIST[i]["mp_state"] != MpTargetState.START.value:
+
+          # assign seekers randomly
+          seekers = 0
+          while seekers < MP_INFO["num_seekers"]:
+            i = random.randrange(len(PLAYER_LIST))
+            
+            if (PLAYER_LIST[i] is None or PLAYER_LIST[i] == {} or
+                # skip players who weren't in start state
+                (PLAYER_LIST[i]["mp_state"] != MpTargetState.READY.value and PLAYER_LIST[i]["mp_state"] != MpTargetState.START.value) or
+                # skip players who were already assigned SEEKER
+                PLAYER_LIST[i]["role"] != MpGameRole.LOBBY.value):
               continue
-            if i == 1:
-              print("player {i} is seeker")
-              PLAYER_LIST[i]["role"] = MpGameRole.SEEKER.value
-            else:
-              PLAYER_LIST[i]["role"] = MpGameRole.HIDER.value
+            print(f"player {i} is seeker")
+            PLAYER_LIST[i]["role"] = MpGameRole.SEEKER.value
+            seekers += 1
+
+          # set remaining players to HIDER
+          for i in range(len(PLAYER_LIST)):
+            if (PLAYER_LIST[i] is None or PLAYER_LIST[i] == {} or
+                # skip players who weren't in start state
+                (PLAYER_LIST[i]["mp_state"] != MpTargetState.READY.value and PLAYER_LIST[i]["mp_state"] != MpTargetState.START.value) or
+                # skip players who were already assigned SEEKER
+                PLAYER_LIST[i]["role"] != MpGameRole.LOBBY.value):
+              continue
+            print(f"player {i} is hider")
+            PLAYER_LIST[i]["role"] = MpGameRole.HIDER.value
+
           print("STARTING_SOON -> PLAY_HIDE")
           MP_INFO["state"] = MpGameState.PLAY_HIDE
           last_state_change_time = time.time()

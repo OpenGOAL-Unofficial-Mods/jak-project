@@ -42,7 +42,7 @@ struct FileStream {
   s32 file;  // int32
 };
 
-const int MAX_USERNAME_LEN = 16;
+const int MAX_USERNAME_LEN = 100;
 struct RemotePlayerInfo {
   u32 username; // string (basic)
   u32 color;  // tgt-color enum
@@ -59,25 +59,38 @@ struct RemotePlayerInfo {
 };
 // static_assert(sizeof(RemotePlayerInfo) == 32, "RemotePlayerInfo size is wrong");
 
-const int MAX_MULTIPLAYER_COUNT = 12;
-
-struct MultiplayerInfo {
-  s32 player_num;
-  RemotePlayerInfo players[MAX_MULTIPLAYER_COUNT];
-  u32 state; // mp-game-state enum
+struct HideAndSeekGameInfoStruct {
   s32 alert_found_pnum;
   s32 alert_seeker_pnum;
+  u32 remote_target_hider_type;
   u32 level_mode;
   u32 continue_point_mode;
   s32 num_seekers;
-  u32 hide_mode;
+  s32 num_hiders;
+  s32 num_hiders_alive;
+  u32 seekers_infect;
+  s32 last_winner;
   float hider_speed;
   float seeker_speed;
-  u32 rand_seeker;
+  u32 choose_seeker;
   float fog_distance;
+  s32 warp_hider_lobby_game;
+  s32 warp_seeker_lobby_game;
+  s32 game_countdown_time;
   float time_to_hide;
   float seeker_timeout;
   u32 hiders_move;
   u32 hiders_pause_zoom;
+};
+
+const int MAX_MULTIPLAYER_COUNT = 12;
+
+struct MultiplayerInfo {
+  s32 game_type_mode;
+  s32 player_num;
+  s32 lobby_name;
+  RemotePlayerInfo players[MAX_MULTIPLAYER_COUNT];
+  HideAndSeekGameInfoStruct hideandseekgameinfo; 
+  u32 state; // mp-game-state enum
 };
 //static_assert(sizeof(MultiplayerInfo) == 116, "MultiplayerInfo size is wrong");

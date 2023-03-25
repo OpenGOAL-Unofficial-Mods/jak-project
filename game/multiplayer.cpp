@@ -14,8 +14,8 @@
 #include "game/kernel/jak1/kscheme.h"
 #include "game/runtime.h"
 
-//std::string ipAddressOrHostname = "localhost:25560";
-std::string ipAddressOrHostname = "78.108.218.126:25560";
+std::string ipAddressOrHostname = "localhost:25560";
+//std::string ipAddressOrHostname = "78.108.218.126:25560";
 std::stringstream urlStream;
 
 size_t curl_write_callbacka(char* ptr, size_t size, size_t nmemb, void* userdata) {
@@ -27,10 +27,12 @@ size_t curl_write_callbacka(char* ptr, size_t size, size_t nmemb, void* userdata
 
 MultiplayerInfo* gMultiplayerInfo;
 RemotePlayerInfo* gSelfPlayerInfo;
+HideAndSeekGameInfoStruct* gHideAndSeekGameInfoStruct;
 String* uname;
 
-void http_register(u64 mpInfo, u64 selfPlayerInfo) {
+void http_register(u64 mpInfo, u64 selfPlayerInfo, u64 HideandSeekGameInfo) {
   gMultiplayerInfo = Ptr<MultiplayerInfo>(mpInfo).c();
+  gHideAndSeekGameInfoStruct = Ptr<HideAndSeekGameInfoStruct>(HideandSeekGameInfo).c();
   gSelfPlayerInfo = Ptr<RemotePlayerInfo>(selfPlayerInfo).c();
   uname = Ptr<String>(gSelfPlayerInfo->username).c();
 
@@ -172,9 +174,9 @@ void http_get() {
       int game_state = response_json["game_state"];
       gMultiplayerInfo->state = game_state;
       int alert_found_pnum = response_json["alert_found_pnum"];
-      gMultiplayerInfo->alert_found_pnum = alert_found_pnum;
+      gHideAndSeekGameInfoStruct->alert_found_pnum = alert_found_pnum;
       int alert_seeker_pnum = response_json["alert_seeker_pnum"];
-      gMultiplayerInfo->alert_seeker_pnum = alert_seeker_pnum;
+      gHideAndSeekGameInfoStruct->alert_seeker_pnum = alert_seeker_pnum;
 
       // players
       for (const auto& item : response_json["players"].items()) {
