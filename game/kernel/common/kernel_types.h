@@ -42,7 +42,7 @@ struct FileStream {
   s32 file;  // int32
 };
 
-const int MAX_USERNAME_LEN = 16;
+const int MAX_USERNAME_LEN = 100;
 struct RemotePlayerInfo {
   u32 username; // string (basic)
   u32 color;  // tgt-color enum

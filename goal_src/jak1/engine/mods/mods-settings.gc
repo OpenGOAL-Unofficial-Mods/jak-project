@@ -107,9 +107,23 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (enum->string tgt-color cmd)
   )
 
+(deftype hns-player-info (structure)
+ ((role               mp-game-role)
+  (mp_state           mp-tgt-state)
+  (collected_by_pnum  int32)
+  (rank               int32)
+  )
+  )
+
+;; TODO - fix
+(defmethod new hns-player-info ((allocation symbol) (type-to-make type))
+  (none)
+  )
+
 (deftype remote-player-info (structure)
  ((username   string)
   (color      tgt-color)
+  (is_admin?  symbol)
   (trans_x    float)
   (trans_y    float)
   (trans_z    float)
@@ -118,8 +132,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (quat_z     float)
   (quat_w     float)
   (tgt_state  symbol)
-  (role       mp-game-role)
-  (mp_state   mp-tgt-state)
+  (hns_info   hns-player-info)  ;; hide-n-seek specific info
   )
   :pack-me
   (:methods
@@ -127,8 +140,9 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     )
   )
 
-(defconstant MAX_USERNAME_LEN 16)
+(defconstant MAX_USERNAME_LEN 100)
 
+;; TODO - fix
 (defmethod new remote-player-info ((allocation symbol) (type-to-make type))
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (set! (-> obj username) (new 'global 'string MAX_USERNAME_LEN (the-as string #f)))
@@ -145,42 +159,38 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     obj
     )
   )
-#|TODO
-(define *collected-by-idx* 1)
-(define *ending-position* 1)
-(define *last-winner* 1)
-(define mod-on? #f)|#
 
 ;; This contains data specific to the hide and seek game mode that should be synced with all clients
   (deftype hide-and-seek-game-info-struct (structure)
-  ((alert-found-pnum     int32)
+  (
+  ;; admin-driven settings
+  (remote-target-hider-type symbol);;Jak or orb
+  (level-mode               symbol);;Random level, Hub, or level symbol
+  (continue-point-mode      symbol);;Spawn seekers/hiders at same checkpoint or random in level
+  (hiders-move?             symbol);;Allow movement/dont after a countdown
+  (hiders-pauser-zoom?      symbol);;Disable zooming and pause for hiders if they are using it to cheat.
+  (seekers-infect?          symbol);;Future feature 
+  (num-seekers              int32);; Number of seekers in a given match
+  (last-winner-as-seeker?   symbol);; Can be 'RANDOM or 'LASTWINNER if lastwinner is default, or more than one seeker the rest are assigned randomly
+  (fog-distance             float);; Change the distance to see hiders
+  (hider-speed              float);; Float value that modifies a hiders speed
+  (seeker-speed             float);; Float value that modifies a seekers speed (can be under 1 to slow them)
+  (time-to-start            int32);; Time before we warp hiders from lobby into the game
+  (time-to-hide             int32);;Time before we warp seekers from lobby into the game
+  (hider-victory-timeout    int32);; If the match goes on for this length then the hiders win
+  (post-game-timeout        int32);; Time from victory -> back to lobby
+
+  ;; server-driven fields
+  (alert-found-pnum     int32)
   (alert-seeker-pnum    int32)
-  (remote-target-hider-type  symbol);;Jak or orb
-  (level-mode          symbol);;Random level, Hub, or level symbol
-  (continue-point-mode symbol);;Spawn seekers/hiders at same checkpoint or random in level
-  (num-seekers          int32);; Number of seekers in a given match
-  (num-hiders          int32);; Number of total hiders, set this on game start (DO NOT INCLUDE SEEKERS HERE)
-  (num-hiders-alive    int32);; Track how many hiders are still alive to know to end the game or not
-  (seekers-infect      symbol);;Future feature 
-  (last-winner         int32);; idx of the player who has most recently won (DO NOT RESET THIS VALUE)
-  (hider-speed          float);; Float value that modifies a hiders speed
-  (seeker-speed         float);; Float value that modifies a seekers speed (can be under 1 to slow them)
-  (choose-seeker?        symbol);; Can be 'RANDOM or 'LASTWINNER if lastwinner is default, or more than one seeker the rest are assigned randomly
-  (fog-distance         float);; Change the distance to see hiders
-  (warp-hider-lobby->game int);; Time before we warp hiders from lobby into the game
-  (warp-seeker-lobby->game int);;Time before we warp seekers from lobby into the game
-  (game-countdown-time  int);;Time before something TODO
-  (post-game-timeout  int);; Time from victory -> back to lobby
-  (time-to-hide         float);; Time that the hiders have to hide
-  (seeker-timeout       float);; If the match goes on for this length then the seekers win
-  (hiders-move?        symbol);;Allow movement/dont after a countdown
-  (hiders-pauser-zoom? symbol);;Disable zooming and pause for hiders if they are using it to cheat.
+  (num-hiders           int32);; Number of total hiders, set this on game start (DO NOT INCLUDE SEEKERS HERE)
   )
   (:methods
     (new (symbol type) _type_ 0)
     )
   )
   
+;; TODO - fix
 (defmethod new hide-and-seek-game-info-struct ((allocation symbol) (type-to-make type))
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (set! (-> obj alert-found-pnum) -1)
