@@ -157,8 +157,6 @@ an orb |#
               (set! *last-game-state* (mp-game-state mp-game-play-seek))
               (set! *game-state-change-time* (-> *display* base-frame-counter))
               )
-          ;;Warp in the seeker
-         ;; (start 'play (get-continue-by-name *game-info* *seeker-continue-point*))
           (let* ((now (-> *display* base-frame-counter))
                   (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info hider-victory-timeout))) now))
                   )
