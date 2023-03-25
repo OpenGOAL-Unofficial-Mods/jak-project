@@ -21,6 +21,7 @@ using json = nlohmann::json;
 
 std::string ipAddressOrHostname = "78.108.218.126:25560";
 
+//This approach WILL break on release builds
 void set_multiplayer_from_json() {
   // Get the current working directory
   std::filesystem::path currentDir = std::filesystem::current_path();

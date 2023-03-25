@@ -26,7 +26,7 @@
    (subtitle-language pc-subtitle-lang) ;; language for subtitles
    (money-starburst? symbol) ;; add a starburst to the money
    (extra-hud? symbol) ;; extra hud elements.
-   (username string)
+   (username symbol)
    (tgt-color tgt-color)
 	 )
   )
@@ -77,7 +77,7 @@
       ))
   (set! (-> obj money-starburst?) #f)
   (set! (-> obj extra-hud?) #f)
-  (set! (-> obj username) "DEFAULT")
+  (set! (-> obj username) 'DEFAULT)
   (set! (-> obj tgt-color) (tgt-color green))
   (none))
 
