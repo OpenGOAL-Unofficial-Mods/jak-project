@@ -18,6 +18,20 @@
 ;;;; types and enums
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defenum tgt-color
+  :type uint32
+  (normal)
+  (green)
+  (blue)
+  (red)
+  (yellow)
+  (white)
+  (black)
+  (purple)
+  (pink)
+  (light-blue)
+  (holo)
+  )
 
 ;; The Jak 1 version of the pc-settings object.
 (deftype pc-settings-jak1 (pc-settings)
@@ -28,7 +42,7 @@
    (money-starburst? symbol) ;; add a starburst to the money
    (extra-hud? symbol) ;; extra hud elements.
    (username string)
-   (tgt-color symbol)
+   (tgt-color tgt-color)
 	 )
   )
 
@@ -79,7 +93,7 @@
   (set! (-> obj money-starburst?) #f)
   (set! (-> obj extra-hud?) #f)
   (set! (-> obj username) "DEFAULT")
-  (set! (-> obj tgt-color) green)
+  (set! (-> obj tgt-color) (tgt-color green))
   (none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
