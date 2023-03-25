@@ -1628,14 +1628,6 @@
 (build-custom-level "test-zone")
 ;; the DGO file
 (custom-level-cgo "TSZ.DGO" "test-zone/testzone.gd")
-(build-custom-level "SM64-BombombBattlefield")
-(custom-level-cgo "BMB.DGO" "SM64-BombombBattlefield/testzone.gd")
-
-(build-custom-level "spyro2-autumnplains")
-(custom-level-cgo "SPYROATM.DGO" "spyro2-autumnplains/testzone.gd")
-
-(build-custom-level "AMOUNGUS-SKLED")
-(custom-level-cgo "SUS.DGO" "AMOUNGUS-SKLED/testzone.gd")
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Game Engine Code

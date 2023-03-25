@@ -28,12 +28,12 @@ an orb |#
   (gmenu-1)
 
   ;; setup our own remote-player-info if we haven't yet
-  ;; (set-up-remote-if-null)
+  (set-up-remote-if-null)
 
   ;; register with server if we haven't yet
   (when (and *target* (not *registered-with-server?*))
-    ;; (pc-http-register *multiplayer-info* *self-player-info* *hide-and-seek-info*)
-    ;; (set! *registered-with-server?* #t)
+    (pc-http-register *multiplayer-info* *self-player-info* *hide-and-seek-info*)
+    (set! *registered-with-server?* #t)
     ;; wait a bit to ensure registration before syncing position
     (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 1.0)))
     )
@@ -44,14 +44,14 @@ an orb |#
       (when (and (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-lobby))
                   (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
                   )
-        ;; (reset-player-to-lobby)
+        (reset-player-to-lobby)
         )
       (with-dma-buffer-add-bucket ((testbuf (-> (current-frame) debug-buf)) (bucket-id subtitle))
       (case (-> *multiplayer-info* state)
         (((mp-game-state mp-game-lobby))
           ;; jump to lobby if game is in lobby state and we're not already there
           (when (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
-            ;; (reset-player-to-lobby)
+            (reset-player-to-lobby)
             )
 
           ;; set to lobby state if not lobby/ready/start
@@ -67,8 +67,8 @@ an orb |#
           (draw-string-xy (string-format "TODO: show players and waiting/ready state") testbuf 10 140 (the font-color 3) (font-flags shadow kerning))
           ;; TODO: show press R2 to ready up text
           (if (=(-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-ready))
-          (draw-string-xy (string-format "You are ready,wait for other players then press B to start the game") testbuf 10 120 (the font-color 3) (font-flags shadow kerning))
-          (draw-string-xy (string-format "You are currently not ready press B to ready up") testbuf 10 120 (the font-color 3) (font-flags shadow kerning))
+            (draw-string-xy (string-format "You are ready,wait for other players then press B to start the game") testbuf 10 120 (the font-color 3) (font-flags shadow kerning))
+            (draw-string-xy (string-format "You are currently not ready press B to ready up") testbuf 10 120 (the font-color 3) (font-flags shadow kerning))
           )
           
           (when (cpad-pressed? 0 r2)
@@ -252,7 +252,7 @@ an orb |#
       (set! *last-position-sync-time* (-> *display* base-frame-counter))
 
       ;; update this player's position and send to server
-      ;; (update-multiplayer-info)
+      (update-multiplayer-info)
 
       ;; if first time, we need to change our state from invalid to lobby
       ;; this is also sort of like an "ack" back to the server to count you as fully joined
@@ -267,10 +267,10 @@ an orb |#
       (pc-http-get)
       )
 
-    ;; (spawn-multiple-targets)
+    (spawn-multiple-targets)
 
     ;; color ourselves
-    ;; (color-target *target* (-> *self-player-info* color)) ;; otherwise use player's choice
+    (color-target *target* (-> *self-player-info* color)) ;; otherwise use player's choice
     )
   (none)
   )

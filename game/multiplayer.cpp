@@ -208,7 +208,7 @@ void http_get() {
             } else if (field.key().compare("tgt_state") == 0) {
               rpInfo->tgt_state = field.value();
             } else if (field.key().compare("role") == 0) {
-              rpInfo->hns_info.role = field.value();
+              Ptr<HnsPlayerInfo>(rpInfo->hns_info).c()->role = field.value();
             } else if (field.key().compare("mp_state") == 0
               && pNum != gMultiplayerInfo->player_num) { // only sync mp_state for remotes. for our own target, only goal code should be updating this
               rpInfo->hns_info.mp_state = field.value();
