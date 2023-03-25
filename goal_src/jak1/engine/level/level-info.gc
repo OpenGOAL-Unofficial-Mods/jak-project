@@ -1989,7 +1989,7 @@
                            :continues '((new 'static 'continue-point
                                              :name "test-zone-start"
                                              :level 'test-zone
-                                             :trans (new 'static 'vector :x (meters 0.) :y (meters 301.4) :z (meters 0.) :w 1.0)
+                                             :trans (new 'static 'vector :x (meters 0) :y (meters 210) :z (meters 0) :w 1.0)
                                              :quat (new 'static 'quaternion  :w 1.0)
                                              :camera-trans (new 'static 'vector :x 0.0 :y 4096.0 :z 0.0 :w 1.0)
                                              :camera-rot (new 'static 'array float 9 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0)
@@ -2012,4 +2012,130 @@
                            )
         )
 
+(define spyro2-autumnplains (new 'static 'level-load-info
+                           :index 26
+                           :name 'spyro2-autumnplains
+                           :visname 'spyro2-autumnplains-vis ;; name + -vis
+                           :nickname 'atm          ;; nickname
+                           :packages '(training)
+                           :sound-banks '(training)
+                           :music-bank 'village1
+                           :ambient-sounds '()
+                           :mood '*training-mood*
+                           :mood-func 'update-mood-training
+                           :ocean '*ocean-map-village1*
+                           :sky #t
+                           :sun-fade 1.0
+                           :continues '((new 'static 'continue-point
+                                             :name "spyro2-autumnplains-start"
+                                             :level 'spyro2-autumnplains
+                                             :trans (new 'static 'vector :x (meters 0) :y (meters 210) :z (meters 0) :w 1.0)
+                                             :quat (new 'static 'quaternion  :w 1.0)
+                                             :camera-trans (new 'static 'vector :x 0.0 :y 4096.0 :z 0.0 :w 1.0)
+                                             :camera-rot (new 'static 'array float 9 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0)
+                                             :load-commands '()
+                                             :vis-nick 'none
+                                             :lev0 'spyro2-autumnplains
+                                             :disp0 'display
+                                             :lev1 'training
+                                             :disp1 'display
+                                             ))
+                           :tasks '()
+                           :priority 100
+    :load-commands '()
+    :alt-load-commands '()
+    :bsp-mask #xffffffffffffffff
+    :bsphere (new 'static 'sphere :x -5079040.0 :z 4055040.0 :w 1024000.0)
+    :buzzer 95
+    :bottom-height (meters -114)
+    :run-packages '("common" "villagep")
+    :wait-for-load #f
+                           )
+        )
+
+(define SM64-BombombBattlefield (new 'static 'level-load-info
+                           :index 26
+                           :name 'SM64-BombombBattlefield
+                           :visname 'SM64-BombombBattlefield-vis ;; name + -vis
+                           :nickname 'bmb          ;; nickname
+                           :packages '(training)
+                           :sound-banks '(training)
+                          :music-bank 'village1
+                          :ambient-sounds '()
+                          :mood '*training-mood*
+                           :mood-func 'update-mood-training
+                          :ocean '*ocean-map-village1*
+                         :sky #t
+                         :sun-fade 1.0
+                           :continues '((new 'static 'continue-point
+                                             :name "SM64-BombombBattlefield-start"
+                                             :level 'SM64-BombombBattlefield
+                                             :trans (new 'static 'vector :x (meters 103.83) :y (meters 92.46) :z (meters -139.97) :w 1.0)
+                                             :quat (new 'static 'quaternion  :w 1.0)
+                                             :camera-trans (new 'static 'vector :x 0.0 :y 4096.0 :z 0.0 :w 1.0)
+                                             :camera-rot (new 'static 'array float 9 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0)
+                                             :load-commands '()
+                                             :vis-nick 'none
+                                             :lev0 'SM64-BombombBattlefield
+                                             :disp0 'display
+                                             :lev1 'training
+                                             :disp1 'display
+                                             ))
+                           :tasks '()
+                           :priority 100
+    :load-commands '()
+    :alt-load-commands '()
+    :bsp-mask #xffffffffffffffff
+    :bsphere (new 'static 'sphere :x -5079040000.0 :z 40550400000.0 :w 1024000000.0)
+    :buzzer 95
+    :bottom-height (meters -114)
+    :run-packages '("common" "villagep")
+    :wait-for-load #f
+                           )
+        )
+
+        (define AMOUNGUS-SKLED (new 'static 'level-load-info
+                           :index 26
+                           :name 'AMOUNGUS-SKLED
+                           :visname 'AMOUNGUS-SKLED-vis ;; name + -vis
+                           :nickname 'sus          ;; nickname
+                           :packages '(training)
+                           :sound-banks '(training)
+                          :music-bank 'village1
+                          :ambient-sounds '()
+                          :mood '*training-mood*
+                           :mood-func 'update-mood-training
+                          :ocean '*ocean-map-village1*
+                         :sky #t
+                         :sun-fade 1.0
+                           :continues '((new 'static 'continue-point
+                                             :name "AMOUNGUS-SKLED-start"
+                                             :level 'AMOUNGUS-SKLED
+                                             :trans (new 'static 'vector :x (meters 103.83) :y (meters 92.46) :z (meters -139.97) :w 1.0)
+                                             :quat (new 'static 'quaternion  :w 1.0)
+                                             :camera-trans (new 'static 'vector :x 0.0 :y 4096.0 :z 0.0 :w 1.0)
+                                             :camera-rot (new 'static 'array float 9 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0)
+                                             :load-commands '()
+                                             :vis-nick 'none
+                                             :lev0 'AMOUNGUS-SKLED
+                                             :disp0 'display
+                                             :lev1 'training
+                                             :disp1 'display
+                                             ))
+                           :tasks '()
+                           :priority 100
+    :load-commands '()
+    :alt-load-commands '()
+    :bsp-mask #xffffffffffffffff
+    :bsphere (new 'static 'sphere :x -5079040000.0 :z 40550400000.0 :w 1024000000.0)
+    :buzzer 95
+    :bottom-height (meters -114)
+    :run-packages '("common" "villagep")
+    :wait-for-load #f
+                           )
+        )
+
+(cons! *level-load-list* 'spyro2-autumnplains)
+(cons! *level-load-list* 'AMOUNGUS-SKLED)
+(cons! *level-load-list* 'SM64-BombombBattlefield)
 (cons! *level-load-list* 'test-zone)

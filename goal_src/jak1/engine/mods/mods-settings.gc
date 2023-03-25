@@ -145,25 +145,77 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     obj
     )
   )
+#|TODO
+(define *collected-by-idx* 1)
+(define *ending-position* 1)
+(define *last-winner* 1)
+(define mod-on? #f)|#
 
-(deftype multiplayer-info (structure)
- ((player_num           int32)
-  (players    remote-player-info MAX_MULTIPLAYER_COUNT :inline)
-  (state        mp-game-state)
-  (alert-found-pnum     int32)
+;; This contains data specific to the hide and seek game mode that should be synced with all clients
+  (deftype hide-and-seek-game-info-struct (structure)
+  ((alert-found-pnum     int32)
   (alert-seeker-pnum    int32)
-  (level-mode          symbol)
-  (continue-point-mode symbol)
-  (num-seekers          int32)
-  (hide-mode?          symbol)
-  (hider-speed          float)
-  (seeker-speed         float)
-  (rand-seeker?        symbol)
-  (fog-distance         float)
-  (time-to-hide         float)
-  (seeker-timeout       float)
-  (hiders-move?        symbol)
-  (hiders-pauser-zoom? symbol)
+  (remote-target-hider-type  symbol);;Jak or orb
+  (level-mode          symbol);;Random level, Hub, or level symbol
+  (continue-point-mode symbol);;Spawn seekers/hiders at same checkpoint or random in level
+  (num-seekers          int32);; Number of seekers in a given match
+  (num-hiders          int32);; Number of total hiders, set this on game start (DO NOT INCLUDE SEEKERS HERE)
+  (num-hiders-alive    int32);; Track how many hiders are still alive to know to end the game or not
+  (seekers-infect      symbol);;Future feature 
+  (last-winner         int32);; idx of the player who has most recently won (DO NOT RESET THIS VALUE)
+  (hider-speed          float);; Float value that modifies a hiders speed
+  (seeker-speed         float);; Float value that modifies a seekers speed (can be under 1 to slow them)
+  (choose-seeker?        symbol);; Can be 'RANDOM or 'LASTWINNER if lastwinner is default, or more than one seeker the rest are assigned randomly
+  (fog-distance         float);; Change the distance to see hiders
+  (warp-hider-lobby->game int);; Time before we warp hiders from lobby into the game
+  (warp-seeker-lobby->game int);;Time before we warp seekers from lobby into the game
+  (game-countdown-time  int);;Time before something TODO
+  (post-game-timeout  int);; Time from victory -> back to lobby
+  (time-to-hide         float);; Time that the hiders have to hide
+  (seeker-timeout       float);; If the match goes on for this length then the seekers win
+  (hiders-move?        symbol);;Allow movement/dont after a countdown
+  (hiders-pauser-zoom? symbol);;Disable zooming and pause for hiders if they are using it to cheat.
+  )
+  (:methods
+    (new (symbol type) _type_ 0)
+    )
+  )
+  
+(defmethod new hide-and-seek-game-info-struct ((allocation symbol) (type-to-make type))
+  (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
+    (set! (-> obj alert-found-pnum) -1)
+    (set! (-> obj alert-seeker-pnum) -1) ;;maybe these are local to the player
+    (set! (-> obj level-mode) 'il)
+    (set! (-> obj continue-point-mode) 'RANDOM)
+    (set! (-> obj num-seekers) 0)
+    (set! (-> obj num-hiders) 0)
+    (set! (-> obj num-hiders-alive) 0)
+    (set! (-> obj seekers-infect) #f)
+    (set! (-> obj last-winner) -1)
+    (set! (-> obj hider-speed) 1.0)
+    (set! (-> obj seeker-speed) 1.0)
+    (set! (-> obj choose-seeker?) 'LASTWINNER)
+    (set! (-> obj fog-distance) 0.0)
+    (set! (-> obj warp-hider-lobby->game) 32)
+    (set! (-> obj warp-seeker-lobby->game) 72)
+    (set! (-> obj game-countdown-time) 31)
+    (set! (-> obj post-game-timeout) 6)
+    (set! (-> obj time-to-hide) 35.0)
+    (set! (-> obj seeker-timeout) 5.0)
+    (set! (-> obj hiders-move?) #t)
+    (set! (-> obj hiders-pauser-zoom?) #t)
+    obj
+    )
+  )
+
+;;This contains data that is not specific to each game mode, but needs to be synced across clients
+(deftype multiplayer-info (structure)
+ ((game-type-mode       symbol);;This is future proofing to allow other gamemodes in the codebase
+  (player_num           int32)
+  (lobby-name          symbol)
+  (players    remote-player-info MAX_MULTIPLAYER_COUNT :inline)
+  (hide-and-seek-game-info    hide-and-seek-game-info-struct)
+  (state        mp-game-state)
   )
   (:methods
     (new (symbol type) _type_ 0)
@@ -174,8 +226,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (let ((obj (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (set! (-> obj player_num) -1)
     (set! (-> obj state) (mp-game-state mp-game-invalid))
-    (set! (-> obj alert-found-pnum) -1)
-    (set! (-> obj alert-seeker-pnum) -1)
     (dotimes (idx MAX_MULTIPLAYER_COUNT)
       (set! (-> obj players idx username) (new 'global 'string MAX_USERNAME_LEN ""))
       (set! (-> obj players idx mp_state) (mp-tgt-state mp-tgt-invalid))
@@ -183,3 +233,4 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     obj
     )
   )
+

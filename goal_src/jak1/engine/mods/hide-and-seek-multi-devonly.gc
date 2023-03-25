@@ -69,7 +69,7 @@ Server/Game Settings
 State: ~S
 Found: ~D By: ~D"
               (enum->string mp-game-state (-> *multiplayer-info* state))
-              (-> *multiplayer-info* alert-found-pnum) (-> *multiplayer-info* alert-seeker-pnum)
+              (-> *hide-and-seek-info* alert-found-pnum) (-> *hide-and-seek-info* alert-seeker-pnum)
               )
             testbuf 10 y-coord (the font-color col-int) (font-flags shadow kerning)
             )
