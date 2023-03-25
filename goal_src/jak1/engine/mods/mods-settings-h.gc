@@ -1,0 +1,106 @@
+;;-*-Lisp-*-
+(in-package goal)
+
+;; name: mods-settings-h.gc
+;; name in dgo: mods-settings-h
+;; dgos: TODO
+
+(defenum mp-game-role
+  :type uint32
+  (lobby)
+  (hider)
+  (seeker)
+  (found)
+  )
+
+(defun-debug mp-game-role->string ((cmd mp-game-role))
+  (enum->string mp-game-role cmd)
+  )
+
+(defenum mp-game-state
+  :type uint32
+  (mp-game-invalid)
+  (mp-game-lobby)
+  (mp-game-starting-soon)
+  (mp-game-play-hide)
+  (mp-game-play-seek)
+  (mp-game-end)
+  )
+
+(defun-debug mp-game-state->string ((cmd mp-game-state))
+  (enum->string mp-game-state cmd)
+  )
+
+(defenum mp-tgt-state
+  :type uint32
+  (mp-tgt-invalid)
+  (mp-tgt-lobby)
+  (mp-tgt-ready)
+  (mp-tgt-start)
+  (mp-tgt-hider-start)
+  (mp-tgt-hider-play)
+  (mp-tgt-hider-found)
+  (mp-tgt-seeker-wait)
+  (mp-tgt-seeker-start)
+  (mp-tgt-seeker-play)
+  )
+
+(defun-debug mp-tgt-state->string ((cmd mp-tgt-state))
+  (enum->string mp-tgt-state cmd)
+  )
+
+(defenum tgt-color
+  :type uint32
+  (normal)
+  (green)
+  (blue)
+  (red)
+  (yellow)
+  (white)
+  (black)
+  (purple)
+  (pink)
+  (light-blue)
+  )
+
+(defun-debug tgt-color->string ((cmd tgt-color))
+  (enum->string tgt-color cmd)
+  )
+
+(defenum tgt-hider-type
+  :type uint32
+  (jak)
+  (orb)
+  ;; (samos)  ;; maybe someday
+  )
+
+(defenum hns-level-mode
+  :type uint32
+  (full-game) ;; can wander the entire world, no restrictions
+  (hub1)      ;; must stay within hub 1
+  (hub2)      ;; must stay within hub 2
+  (hub3)      ;; must stay within hub 3
+  (training)  ;; must stay within geyser
+  (village1)
+  (beach)
+  (jungle)
+  (misty)
+  (firecanyon)
+  (village2)
+  (sunken)
+  (swamp)
+  (rolling)
+  (ogre)
+  (village3)
+  (snow)
+  (cave)
+  (lavatube)
+  (citadel)
+  )
+
+(defenum hns-continue-pt-mode
+  :type uint32
+  (same)      ;; everyone spawns at same (random) checkpoint
+  (different) ;; everyone spawns at different (random) checkpoints
+  )
+
