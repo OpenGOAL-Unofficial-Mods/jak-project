@@ -35,7 +35,7 @@ an orb |#
     (pc-http-register *multiplayer-info* *self-player-info*)
     (set! *registered-with-server?* #t)
     ;; wait a bit to ensure registration before syncing position
-    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 1.0)))
+    (set! *last-position-sync-time* (+ (-> *display* base-frame-counter) (seconds 3.0)))
     )
 
   (when (and *target* (>= (-> *multiplayer-info* player_num) 0) (< (-> *multiplayer-info* player_num) MAX_MULTIPLAYER_COUNT))
@@ -158,7 +158,7 @@ an orb |#
               (set! *game-state-change-time* (-> *display* base-frame-counter))
               )
           ;;Warp in the seeker
-          (start 'play (get-continue-by-name *game-info* *seeker-continue-point*))
+         ;; (start 'play (get-continue-by-name *game-info* *seeker-continue-point*))
           (let* ((now (-> *display* base-frame-counter))
                   (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info hider-victory-timeout))) now))
                   )
