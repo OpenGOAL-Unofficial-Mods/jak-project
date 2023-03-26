@@ -769,162 +769,405 @@ If we are not the admin, wait for a time, then get the updated settings from the
   (draw-xyz jak 0.0 3.0 3.0)
 )
 
+(defenum hns-level-mode
+  :type uint32
+  (full-game) ;; can wander the entire world, no restrictions
+  (hub1)      ;; must stay within hub 1
+  (hub2)      ;; must stay within hub 2
+  (hub3)      ;; must stay within hub 3
+  (training)  ;; must stay within geyser
+  (village1)
+  (beach)
+  (jungle)
+  (misty)
+  (firecanyon)
+  (village2)
+  (sunken)
+  (swamp)
+  (rolling)
+  (ogre)
+  (village3)
+  (snow)
+  (cave)
+  (lavatube)
+  (citadel)
+  )
+
+
+
 ;;Randomizer checkpoint stuff
 
-;; (define *checkpoint-list-by-level-idx* 
-;;   (new 'static 'boxed-array :type (array string) :length 16 :allocated-length 16
-;;     ;; Geyser Rock
-;;     (new 'static 'boxed-array :type string :length 2
-;;       "game-start"
-;;       "training-far"
-;;     )
-;;     ;; Sandover
-;;     (new 'static 'boxed-array :type string :length 3
-;;       "village1-hut"
-;;       "village1-warp"
-;;       "village1-far"
-;;     )
-;;     ;; Sentinel Beach
-;;     (new 'static 'boxed-array :type string :length 3
-;;       "beach-start"
-;;       "beach-pelican"
-;;       "beach-far"
-;;     )
-;;     ;; Forbidden Jungle
-;;     (new 'static 'boxed-array :type string :length 3
-;;       "jungle-start"
-;;       "jungle-far"
-;;       "jungle-tower"
-;;     )
-;;     ;; Misty Island
-;;     (new 'static 'boxed-array :type string :length 5
-;;       "misty-start"
-;;       "misty-silo"
-;;       "misty-bike"
-;;       "misty-backside"
-;;       "misty-silo2"
-;;     )
-;;     ;; Fire Canyon
-;;     (new 'static 'boxed-array :type string :length 2
-;;       "firecanyon-start"
-;;       "firecanyon-end"
-;;     )
-;;     ;; Rock Village
-;;     (new 'static 'boxed-array :type string :length 3
-;;       "village2-start"
-;;       "village2-warp"
-;;       "village2-dock"
-;;     )
-;;     ;; Lost Precursor City
-;;     (new 'static 'boxed-array :type string :length 6
-;;       "sunken-start"
-;;       "sunken1"
-;;       "sunken2"
-;;       "sunken-tube1"
-;;       "sunkenb-start"
-;;       "sunkenb-helix"
-;;     )
-;;     ;; Boggy Swamp
-;;     (new 'static 'boxed-array :type string :length 8
-;;       "swamp-start"
-;;       "swamp-dock1"
-;;       "swamp-cave1"
-;;       "swamp-dock2"
-;;       "swamp-cave2"
-;;       "swamp-game"
-;;       "swamp-cave3"
-;;       "swamp-flutflut"
-;;     )
-;;     ;; Precursor Basin
-;;     (new 'static 'boxed-array :type string :length 1
-;;       "rolling-start"
-;;     )
-;;     ;; Mountain Pass
-;;     (new 'static 'boxed-array :type string :length 3
-;;       "ogre-start"
-;;       "ogre-race"
-;;       "ogre-end"
-;;     )
-;;     ;; Volcanic Crater
-;;     (new 'static 'boxed-array :type string :length 4
-;;       "village3-start"
-;;       "village3-warp"
-;;       "village3-farside"
-;;       "village3-cart"
-;;     )
-;;     ;; Snowy Mountain
-;;     (new 'static 'boxed-array :type string :length 9
-;;       "snow-start"
-;;       "snow-fort"
-;;       "snow-flut-flut"
-;;       "snow-pass-to-fort"
-;;       "snow-by-ice-lake"
-;;       "snow-by-ice-lake-alt"
-;;       "snow-outside-fort"
-;;       "snow-outside-cave"
-;;       "snow-across-from-flut"
-;;     )
-;;     ;; Spider Cave
-;;     (new 'static 'boxed-array :type string :length 6
-;;       "maincave-start"
-;;       "maincave-to-darkcave"
-;;       "maincave-to-robocave"
-;;       "darkcave-start"
-;;       "robocave-start"
-;;       "robocave-bottom"
-;;     )
-;;     ;; Lava Tube
-;;     (new 'static 'boxed-array :type string :length 6
-;;       "lavatube-start"
-;;       "lavatube-middle"
-;;       "lavatube-after-ribbon"
-;;       "lavatube-end"
-;;       "citadel-entrance"
-;;       "citadel-warp"
-;;     )
-;;     ;; Gol and Maia's Citadel
-;;     (new 'static 'boxed-array :type string :length 8
-;;       "citadel-start"
-;;       "citadel-plat-start"
-;;       "citadel-plat-end"
-;;       "citadel-launch-start"
-;;       "citadel-launch-end"
-;;       "citadel-generator-start"
-;;       "citadel-generator-end"
-;;       "citadel-elevator"
-;;     )
-;;   )
-;; )
-
-;; (defenum checkpoint-list-by-level-idx-names
-;;   (Geyser) 
-;;   (Sandover)
-;;   (Sentinel)
-;;   (Forbidden)
-;;   (Misty)
-;;   (Fire)
-;;   (Rock)
-;;   (Lost)
-;;   (Boggy)
-;;   (Basin)
-;;   (Mountain)
-;;   (Spider)
-;;   (Lava)
-;;   (Gol)
-;;   )
-
-
-;; (defun random-checkpoint-by-level-idx ((level-idx int))
-;;   ;; ...then choose random checkpoint within that level
-;;   (let ((random-level-checkpoint-idx (knuth-rand-int-range 0 (-> *checkpoint-list-by-level-idx* level-idx length))))
-;;     (-> *checkpoint-list-by-level-idx* 
-;;       level-idx 
-;;       random-level-checkpoint-idx
-;;       )
-;;     )
-;;   )
+(define *checkpoint-list-by-level-idx* 
+  (new 'static 'boxed-array :type (array string) :length 20 :allocated-length 20
+    ;; Geyser Rock
+    (new 'static 'boxed-array :type string :length 2
+      "game-start"
+      "training-far"
+    )
+        ;; Geyser Rock
+    (new 'static 'boxed-array :type string :length 2
+      "game-start"
+      "training-far"
+    )
+        ;; Geyser Rock
+    (new 'static 'boxed-array :type string :length 2
+      "game-start"
+      "training-far"
+    )
+        ;; Geyser Rock
+    (new 'static 'boxed-array :type string :length 2
+      "game-start"
+      "training-far"
+    )
+        ;; Geyser Rock
+    (new 'static 'boxed-array :type string :length 2
+      "game-start"
+      "training-far"
+    )
+    ;; Sandover
+    (new 'static 'boxed-array :type string :length 3
+      "village1-hut"
+      "village1-warp"
+      "village1-far"
+    )
+    ;; Sentinel Beach
+    (new 'static 'boxed-array :type string :length 3
+      "beach-start"
+      "beach-pelican"
+      "beach-far"
+    )
+    ;; Forbidden Jungle
+    (new 'static 'boxed-array :type string :length 3
+      "jungle-start"
+      "jungle-far"
+      "jungle-tower"
+    )
+    ;; Misty Island
+    (new 'static 'boxed-array :type string :length 5
+      "misty-start"
+      "misty-silo"
+      "misty-bike"
+      "misty-backside"
+      "misty-silo2"
+    )
+    ;; Fire Canyon
+    (new 'static 'boxed-array :type string :length 2
+      "firecanyon-start"
+      "firecanyon-end"
+    )
+    ;; Rock Village
+    (new 'static 'boxed-array :type string :length 3
+      "village2-start"
+      "village2-warp"
+      "village2-dock"
+    )
+    ;; Lost Precursor City
+    (new 'static 'boxed-array :type string :length 6
+      "sunken-start"
+      "sunken1"
+      "sunken2"
+      "sunken-tube1"
+      "sunkenb-start"
+      "sunkenb-helix"
+    )
+    ;; Boggy Swamp
+    (new 'static 'boxed-array :type string :length 8
+      "swamp-start"
+      "swamp-dock1"
+      "swamp-cave1"
+      "swamp-dock2"
+      "swamp-cave2"
+      "swamp-game"
+      "swamp-cave3"
+      "swamp-flutflut"
+    )
+    ;; Precursor Basin
+    (new 'static 'boxed-array :type string :length 1
+      "rolling-start"
+    )
+    ;; Mountain Pass
+    (new 'static 'boxed-array :type string :length 3
+      "ogre-start"
+      "ogre-race"
+      "ogre-end"
+    )
+    ;; Volcanic Crater
+    (new 'static 'boxed-array :type string :length 4
+      "village3-start"
+      "village3-warp"
+      "village3-farside"
+      "village3-cart"
+    )
+    ;; Snowy Mountain
+    (new 'static 'boxed-array :type string :length 9
+      "snow-start"
+      "snow-fort"
+      "snow-flut-flut"
+      "snow-pass-to-fort"
+      "snow-by-ice-lake"
+      "snow-by-ice-lake-alt"
+      "snow-outside-fort"
+      "snow-outside-cave"
+      "snow-across-from-flut"
+    )
+    ;; Spider Cave
+    (new 'static 'boxed-array :type string :length 6
+      "maincave-start"
+      "maincave-to-darkcave"
+      "maincave-to-robocave"
+      "darkcave-start"
+      "robocave-start"
+      "robocave-bottom"
+    )
+    ;; Lava Tube
+    (new 'static 'boxed-array :type string :length 6
+      "lavatube-start"
+      "lavatube-middle"
+      "lavatube-after-ribbon"
+      "lavatube-end"
+      "citadel-entrance"
+      "citadel-warp"
+    )
+    ;; Gol and Maia's Citadel
+    (new 'static 'boxed-array :type string :length 8
+      "citadel-start"
+      "citadel-plat-start"
+      "citadel-plat-end"
+      "citadel-launch-start"
+      "citadel-launch-end"
+      "citadel-generator-start"
+      "citadel-generator-end"
+      "citadel-elevator"
+    )
+  )
+)
 
 
+(defun random-checkpoint-by-level-idx ((level-idx hns-level-mode))
+  ;; ...then choose random checkpoint within that level
+  (let ((random-level-checkpoint-idx (knuth-rand-int-range 0 (-> *checkpoint-list-by-level-idx* level-idx length))))
+    (-> *checkpoint-list-by-level-idx* 
+      level-idx 
+      random-level-checkpoint-idx
+      )
+    )
+  )
 
+(defun random-checkpoint-fullgame ((level-idx hns-level-mode))
+  ;; ...then choose random checkpoint within that level
+  (let ((random-level-checkpoint-idx (knuth-rand-int-range 0 (-> *checkpoint-list-by-level-idx* length))))
+    (-> *checkpoint-list-by-level-idx*  
+      random-level-checkpoint-idx
+      )
+    )
+  )
+
+(defun random-checkpoint-hub1 ((level-idx hns-level-mode))
+  ;; ...then choose random checkpoint within that level
+  (let ((random-level-checkpoint-idx (knuth-rand-int-range 4 9)))
+    (-> *checkpoint-list-by-level-idx* 
+      random-level-checkpoint-idx
+      )
+    )
+  )
+
+(defun random-checkpoint-by-hub2 ((level-idx hns-level-mode))
+  ;; ...then choose random checkpoint within that level
+  (let ((random-level-checkpoint-idx (knuth-rand-int-range 9 14)))
+    (-> *checkpoint-list-by-level-idx* 
+      random-level-checkpoint-idx
+      )
+    )
+  )
+
+(defun random-checkpoint-hub3 ((level-idx hns-level-mode))
+  ;; ...then choose random checkpoint within that level
+  (let ((random-level-checkpoint-idx (knuth-rand-int-range 14 (-> *checkpoint-list-by-level-idx*  length))))
+    (-> *checkpoint-list-by-level-idx*  
+      random-level-checkpoint-idx
+      )
+    )
+  )
+
+(define inbounds-check 0)
+;;Return a boolean if the play is out of the playing area
+(defun check-player-inbounds ((idx hns-level-mode))
+(case idx
+    (((hns-level-mode full-game))
+    (if (= (-> (level-get-target-inside *level*) name) 'full-game)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode hub1))
+    (if (= (-> (level-get-target-inside *level*) name) 'hub1)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode hub2))
+    (if (= (-> (level-get-target-inside *level*) name) 'hub2)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode hub3))
+    (if (= (-> (level-get-target-inside *level*) name) 'hub3)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode training))
+    (if (= (-> (level-get-target-inside *level*) name) 'training)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode village1))
+    (if (= (-> (level-get-target-inside *level*) name) 'village1)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode beach))
+    (if (= (-> (level-get-target-inside *level*) name) 'beach)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode jungle))
+    (if (or (= (-> (level-get-target-inside *level*) name) 'jungle)
+            (= (-> (level-get-target-inside *level*) name) 'jungleb))
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode misty))
+    (if (= (-> (level-get-target-inside *level*) name) 'misty)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode firecanyon))
+    (if (= (-> (level-get-target-inside *level*) name) 'firecanyon)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode village2))
+    (if (= (-> (level-get-target-inside *level*) name) 'village2)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode sunken))
+    (if (or (= (-> (level-get-target-inside *level*) name) 'sunken) 
+            (= (-> (level-get-target-inside *level*) name) 'sunkenb))
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode swamp))
+    (if (= (-> (level-get-target-inside *level*) name) 'swamp)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode rolling))
+    (if (= (-> (level-get-target-inside *level*) name) 'rolling)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode ogre))
+    (if (= (-> (level-get-target-inside *level*) name) 'ogre)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode village3))
+    (if (= (-> (level-get-target-inside *level*) name) 'village3)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode snow))
+    (if (= (-> (level-get-target-inside *level*) name) 'snow)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode cave))
+    (if (or (= (-> (level-get-target-inside *level*) name) 'maincave)
+            (= (-> (level-get-target-inside *level*) name) 'robocave) 
+            (= (-> (level-get-target-inside *level*) name) 'darkcave))
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode lavatube))
+    (if (= (-> (level-get-target-inside *level*) name) 'lavatube)
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (((hns-level-mode citadel))
+    (if (or (= (-> (level-get-target-inside *level*) name) 'citadel)
+            (= (-> (level-get-target-inside *level*) name) 'finalboss))
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+    ))
+    (else
+    (set! inbounds-check 0)
+    )
+)
+inbounds-check
+)
+
+(defun check-player-inbounds-multi ((idx hns-level-mode))
+(case idx
+    (((hns-level-mode full-game))
+    (set! inbounds-check 1) ;;Impossible to be outside of the full game
+    )
+    (((hns-level-mode hub1))
+    (if (or (nonzero?(check-player-inbounds (hns-level-mode training)))
+            (nonzero?(check-player-inbounds (hns-level-mode village1)))
+            (nonzero?(check-player-inbounds (hns-level-mode beach)))
+            (nonzero?(check-player-inbounds (hns-level-mode misty)))
+            (nonzero?(check-player-inbounds (hns-level-mode jungle)))
+            (nonzero?(check-player-inbounds (hns-level-mode firecanyon))))
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+
+    ))
+    (((hns-level-mode hub2))
+    (if (or (nonzero?(check-player-inbounds (hns-level-mode firecanyon)))
+            (nonzero?(check-player-inbounds (hns-level-mode village2)))
+            (nonzero?(check-player-inbounds (hns-level-mode rolling)))
+            (nonzero?(check-player-inbounds (hns-level-mode ogre)))
+            (nonzero?(check-player-inbounds (hns-level-mode sunken)))
+            (nonzero?(check-player-inbounds (hns-level-mode swamp))))
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+
+    ))
+    (((hns-level-mode hub3))
+    (if (or (nonzero?(check-player-inbounds (hns-level-mode ogre)))
+            (nonzero?(check-player-inbounds (hns-level-mode village3)))
+            (nonzero?(check-player-inbounds (hns-level-mode snow)))
+            (nonzero?(check-player-inbounds (hns-level-mode cave)))
+            (nonzero?(check-player-inbounds (hns-level-mode lavatube)))
+            (nonzero?(check-player-inbounds (hns-level-mode citadel))))
+    (set! inbounds-check 1)
+    (set! inbounds-check 0)
+
+    ))
+    (else
+    (set! inbounds-check 0)
+    )
+)
+
+
+inbounds-check
+)
+
+
+;; hns Admin functions
+
+(defun admin-roll-random-level ()
+;;TODO rand range starts at 4 as the logic for full game and hub are not implmented
+(set! (-> *multiplayer-info* hide-and-seek-game-info level-mode) (the-as hns-level-mode (knuth-rand-int-range 4 (-> *checkpoint-list-by-level-idx* length))))
+)
+
+(defun-debug test-admin-warp ()
+(admin-roll-random-level)
+
+(set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
+(set! *hider-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
+(start 'play (get-continue-by-name *game-info* *seeker-continue-point*))
+(check-player-inbounds (-> *multiplayer-info* hide-and-seek-game-info level-mode))
+
+)
 
 
