@@ -93,17 +93,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (none)
   )
 
-(defun update-hide-and-seek-settings()
-#|
-If we are the admin, set our settings locally to prepare to push them to the server, then call a funtion to push them to the server.
-Most of these settings will be set via progress menu, only things we need to calculate here is the "random" stuff (who is and isnt seeker etc)
-|#
 
-#|
-If we are not the admin, wait for a time, then get the updated settings from the server.
-|#
-(none)
-)
 
 (defun color-target-rgb ((tgt process-drawable) (r float) (g float) (b float))
   (set! (-> tgt draw color-mult r) r)
@@ -1170,4 +1160,19 @@ inbounds-check
 
 )
 
+(defun update-hide-and-seek-settings()
+#|
+If we are the admin, set our settings locally to prepare to push them to the server, then call a funtion to push them to the server.
+Most of these settings will be set via progress menu, only things we need to calculate here is the "random" stuff (who is and isnt seeker etc)
+|#
+(if (should-update-game-settings?)
+(begin
+(admin-roll-random-level)
+(pc-http-update-settings)
 
+))
+#|
+If we are not the admin, wait for a time, then get the updated settings from the server.
+|#
+(none)
+)

@@ -91,6 +91,14 @@ an orb |#
                   (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info time-to-start))) now))
                   )
             ;; TODO POST settings from admin, and GET if not admin
+
+            ;;;;;;;;;;;;;;;;;;;;;
+            ;; Maybe a bad hack
+            ;;;;;;;;;;;;;;;;;;;;;
+            (if (and (should-update-game-settings?) (= (/ time-remaining TICKS_PER_SECOND)3))
+            (update-hide-and-seek-settings)
+            )
+
             (set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
             (set! *hider-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
 
