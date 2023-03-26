@@ -91,6 +91,8 @@ an orb |#
                   (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info time-to-start))) now))
                   )
             ;; TODO POST settings from admin, and GET if not admin
+            (set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
+            (set! *hider-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
 
             ;; jump to lobby if game is in starting-soon state and we're not already there
             (when (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
