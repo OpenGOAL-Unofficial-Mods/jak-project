@@ -342,7 +342,7 @@
     (("subtitles?") (set! (-> obj subtitles?) (file-stream-read-symbol file)))
     (("subtitle-language") (set! (-> obj subtitle-language) (the-as pc-subtitle-lang (file-stream-read-int file))))
     (("username") (set! (-> obj username) (file-stream-read-symbol file)))
-    (("color") (set! (-> obj tgt-color) (the-as tgt-color (file-stream-read-symbol file))))
+    (("color") (set! (-> obj tgt-color) (the-as tgt-color (file-stream-read-int file))))
     )
   0)
 
@@ -356,7 +356,7 @@
   (format file "  (subtitles? ~A)~%" (-> obj subtitles?))
   (format file "  (subtitle-language ~D)~%" (-> obj subtitle-language))
   (format file "  (username ~A)~%" (-> obj username))
-  (format file "  (color ~A)~%" (-> obj tgt-color))
+  (format file "  (color ~D)~%" (-> obj tgt-color))
   
   0)
 
