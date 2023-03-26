@@ -94,7 +94,7 @@ an orb |#
 
             ;; jump to lobby if game is in starting-soon state and we're not already there
             (when (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
-              (start 'play (get-continue-by-name *game-info* *lobby-continue-point*))
+              (reset-player-to-lobby)
               (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-lobby))
               )
             (when (cpad-pressed? 0 r2)
@@ -236,7 +236,7 @@ an orb |#
               (set! *game-state-change-time* (-> *display* base-frame-counter))
               )
           (let* ((now (-> *display* base-frame-counter))
-                  (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info hider-victory-timeout))) now))
+                  (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info post-game-timeout))) now))
                   )
             ;; TODO: show text about who won, stats, idfk
             (draw-string-xy (string-format "Epic Victory by ~S, Going back to lobby in ~D seconds"

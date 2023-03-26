@@ -1120,14 +1120,14 @@
                )
               (else
                 (pickup-collectable! (-> self fact-override) (pickup-type health) -1000.0 (the-as handle #f))
-                (go target-mech-death (-> gp-0 mode))
+                (if (= self *target*) (go target-mech-death (-> gp-0 mode)))
                 )
               )
             )
            )
          (target-hit-effect gp-0)
          (pickup-collectable! (-> self fact-override) (pickup-type health) -1000.0 (the-as handle #f))
-         (go target-mech-death (-> gp-0 mode))
+         (if (= self *target*) (go target-mech-death (-> gp-0 mode)))
          )
         (else
           (case (-> gp-0 mode)

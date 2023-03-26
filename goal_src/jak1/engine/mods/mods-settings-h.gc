@@ -100,7 +100,7 @@
 
 (defenum hns-continue-pt-mode
   :type uint32
-  (same)      ;; everyone spawns at same (random) checkpoint
   (different) ;; everyone spawns at different (random) checkpoints
+  (same)      ;; everyone spawns at same (random) checkpoint, not supported yet
   )
 
