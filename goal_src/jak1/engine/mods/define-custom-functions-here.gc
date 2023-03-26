@@ -60,12 +60,10 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 
 
 (defun reset-player-to-lobby ()
-  (format 0 "warping to lobby~%")
   (start 'play (get-continue-by-name *game-info* *lobby-continue-point*))
   (none)
   )
 
-  
 (defun set-up-remote-if-null ()
   (when (not *self-player-info*)
     (set! *self-player-info* (new 'global 'remote-player-info))
@@ -74,6 +72,12 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     )
   (none)
 )
+
+(defun should-update-game-settings? () 
+  (and (>= (-> *multiplayer-info* player_num) 0)
+       (nonzero? (-> *multiplayer-info* players (-> *multiplayer-info* player_num) is_admin?))
+       )
+  )
 
 (defun update-multiplayer-info()
   (set! (-> *multiplayer-info* players (-> *multiplayer-info* player_num) username)   (-> *self-player-info* username))
@@ -174,16 +178,30 @@ If we are not the admin, wait for a time, then get the updated settings from the
     ;; (('target-fishing) (send-event t 'change-mode 'fishing #f))
     ;; (('target-flop))
     ;; (('target-flop-hit-ground))
-    (('target-flut-air-attack 'target-flut-air-attack-hit-ground 'target-flut-clone-anim 'target-flut-death 
-      'target-flut-double-jump 'target-flut-falling 'target-flut-get-off 'target-flut-get-off-hit-ground 
-      'target-flut-get-off-jump 'target-flut-get-on 'target-flut-grab 'target-flut-hit 'target-flut-hit-ground 
-      'target-flut-jump 'target-flut-running-attack 'target-flut-stance 'target-flut-start 'target-flut-walk)
+    
+    (('target-flut-get-off 'target-flut-get-off-hit-ground 'target-flut-get-off-jump)
       (case (-> t state name)
         (('target-flut-air-attack 'target-flut-air-attack-hit-ground 'target-flut-clone-anim 'target-flut-death 
-          'target-flut-double-jump 'target-flut-falling 'target-flut-get-off 'target-flut-get-off-hit-ground 
-          'target-flut-get-off-jump 'target-flut-get-on 'target-flut-grab 'target-flut-hit 'target-flut-hit-ground 
+        'target-flut-double-jump 'target-flut-falling 'target-flut-get-on 'target-flut-grab 'target-flut-hit 'target-flut-hit-ground 
+        'target-flut-jump 'target-flut-running-attack 'target-flut-stance 'target-flut-start 'target-flut-walk)
+          ;; on flutflut, get off
+          (send-event t 'change-mode 'normal #f)
+          )
+        )
+      )
+    (('target-flut-air-attack 'target-flut-air-attack-hit-ground 'target-flut-clone-anim 'target-flut-death 
+      'target-flut-double-jump 'target-flut-falling 'target-flut-get-on 'target-flut-grab 'target-flut-hit 'target-flut-hit-ground 
+      'target-flut-jump 'target-flut-running-attack 'target-flut-stance 'target-flut-start 'target-flut-walk)
+      (case (-> t state name)
+        (('target-racing 'target-racing-bounce 'target-racing-clone-anim 'target-racing-death 'target-racing-falling 'target-racing-get-on 
+        'target-racing-grab 'target-racing-hit 'target-racing-jump  'target-racing-smack 'target-racing-start)
+          ;; on zoomer, get off 
+          (send-event t 'change-mode 'normal #f)
+          )
+        (('target-flut-air-attack 'target-flut-air-attack-hit-ground 'target-flut-clone-anim 'target-flut-death 
+          'target-flut-double-jump 'target-flut-falling 'target-flut-get-on 'target-flut-grab 'target-flut-hit 'target-flut-hit-ground 
           'target-flut-jump 'target-flut-running-attack 'target-flut-stance 'target-flut-start 'target-flut-walk)
-          ;; do nothing
+          ;; already on flutflut, do nothing
           )
         (else
           (send-event t 'change-mode 'flut #f)
@@ -209,10 +227,32 @@ If we are not the admin, wait for a time, then get the updated settings from the
     ;; (('target-pole-flip-forward-jump))
     ;; (('target-pole-flip-up))
     ;; (('target-pole-flip-up-jump))
-    (('target-racing 'target-racing-bounce 'target-racing-clone-anim 'target-racing-death 'target-racing-falling 
-      'target-racing-get-off 'target-racing-get-off-hit-ground 'target-racing-get-off-jump 'target-racing-get-on 
+    (('target-racing-get-off 'target-racing-get-off-hit-ground 'target-racing-get-off-jump)
+      (case (-> t state name)
+        (('target-racing 'target-racing-bounce 'target-racing-clone-anim 'target-racing-death 'target-racing-falling 'target-racing-get-on 
+        'target-racing-grab 'target-racing-hit 'target-racing-jump  'target-racing-smack 'target-racing-start)
+          ;; on zoomer, get off 
+          (send-event t 'change-mode 'normal #f)
+          )
+        )
+      )
+    (('target-racing 'target-racing-bounce 'target-racing-clone-anim 'target-racing-death 'target-racing-falling 'target-racing-get-on 
       'target-racing-grab 'target-racing-hit 'target-racing-jump  'target-racing-smack 'target-racing-start)
-      (send-event t 'change-mode 'racing #f)
+      (case (-> t state name)
+        (('target-flut-air-attack 'target-flut-air-attack-hit-ground 'target-flut-clone-anim 'target-flut-death 
+          'target-flut-double-jump 'target-flut-falling 'target-flut-get-on 'target-flut-grab 'target-flut-hit 'target-flut-hit-ground 
+          'target-flut-jump 'target-flut-running-attack 'target-flut-stance 'target-flut-start 'target-flut-walk)
+            ;; on flutflut, get off
+            (send-event t 'change-mode 'normal #f)
+            )
+        (('target-racing 'target-racing-bounce 'target-racing-clone-anim 'target-racing-death 'target-racing-falling 'target-racing-get-on 
+          'target-racing-grab 'target-racing-hit 'target-racing-jump  'target-racing-smack 'target-racing-start)
+          ;; already on zoomer, do nothing
+          )
+        (else
+          (send-event t 'change-mode 'racing #f)
+          )
+        )
       )
     ;; (('target-running-attack))
     ;; (('target-slide-down))

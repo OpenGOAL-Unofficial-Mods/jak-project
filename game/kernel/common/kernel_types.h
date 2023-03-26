@@ -53,7 +53,7 @@ const int MAX_USERNAME_LEN = 100;
 struct RemotePlayerInfo {
   u32 username; // string (basic)
   u32 color;  // tgt-color enum
-  s32 is_admin; // #t / #f
+  s32 is_admin; // 0 or 1 (idk how to write #t/#f from c++ side)
   float trans_x;
   float trans_y;
   float trans_z;
@@ -71,11 +71,11 @@ struct HideAndSeekGameInfoStruct {
   u32 target_hider_type;
   u32 level_mode;
   u32 continue_point_mode;
-  u32 hiders_move;
-  u32 hiders_pause_zoom;
-  u32 seekers_infect;
+  s32 hiders_move;  // 0 or 1 (idk how to write #t/#f from c++ side)
+  s32 hiders_pause_zoom;  // 0 or 1 (idk how to write #t/#f from c++ side)
+  s32 seekers_infect;     // 0 or 1 (idk how to write #t/#f from c++ side)
   s32 num_seekers;
-  s32 last_winner_as_seeker;
+  s32 last_winner_as_seeker;  // 0 or 1 (idk how to write #t/#f from c++ side)
   float fog_distance;
   float hider_speed;
   float seeker_speed;
