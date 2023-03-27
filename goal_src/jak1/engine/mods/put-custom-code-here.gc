@@ -189,6 +189,7 @@ an orb |#
                                                 (-> *multiplayer-info* hide-and-seek-game-info num-seekers) 
                                                 (-> *multiplayer-info* hide-and-seek-game-info num-hiders-left)
                                                 (-> *multiplayer-info* hide-and-seek-game-info num-hiders)
+                                                (/ time-remaining TICKS_PER_SECOND)
                                                 )
                   testbuf 10 140 (the font-color 3) (font-flags shadow kerning)
                   )
