@@ -74,3 +74,4 @@ __pycache__/
 goal_src/jak1/engine/mods/personal-temp-settings.gc
 config/multiplayerconfig.json
 .vscode/settings.json
+scripts/batch/ReleaseTemplate.rar

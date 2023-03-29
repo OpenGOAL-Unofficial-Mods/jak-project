@@ -63,7 +63,7 @@
   (light-blue)
   )
 
-(defun-debug tgt-color->string ((cmd tgt-color))
+(defun tgt-color->string ((cmd tgt-color))
   (enum->string tgt-color cmd)
   )
 
