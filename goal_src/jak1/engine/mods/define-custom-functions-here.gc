@@ -67,7 +67,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (defun set-up-remote-if-null ()
   (when (not *self-player-info*)
     (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) (symbol->string(-> *pc-settings* username))) ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* username) (symbol->string (-> *pc-settings* username))) ;; TODO - pull this from settings I guess?
     (set! (-> *self-player-info* color)  (-> *pc-settings* tgt-color)) ;; TODO - pull this from settings I guess?
     )
   (none)
@@ -1142,6 +1142,29 @@ inbounds-check
 inbounds-check
 )
 
+(defun draw-active-players-text ((buf dma-buffer))
+  (clear *temp-string*)
+  (dotimes (idx MAX_MULTIPLAYER_COUNT)
+    (when (!= (-> *multiplayer-info* players idx hns_info mp_state) (mp-tgt-state mp-tgt-invalid))
+      (format *temp-string* "~S (~S)~%"
+        (-> *multiplayer-info* players idx username)
+        (mp-tgt-state->display (-> *multiplayer-info* players idx hns_info mp_state))
+        )
+      )
+    )
+    (draw-string-xy *temp-string* buf 5 48 (font-color light-blue) (font-flags shadow kerning))
+  (none)
+  )
+
+(defun draw-instructions-text ((buf dma-buffer) (str string))
+  (draw-string-xy str buf 256 200 (font-color flat-yellow) (font-flags middle shadow kerning))
+  (none)
+  )
+
+(defun draw-alert-text ((buf dma-buffer) (str string))
+  (draw-string-xy str buf 256 48 (font-color orange-red) (font-flags middle shadow kerning))
+  (none)
+  )
 
 ;; hns Admin functions
 
@@ -1150,7 +1173,7 @@ inbounds-check
 (set! (-> *multiplayer-info* hide-and-seek-game-info level-mode) (the-as hns-level-mode (knuth-rand-int-range 4 (-> *checkpoint-list-by-level-idx* length))))
 )
 
-(defun-debug test-admin-warp ()
+(defun test-admin-warp ()
 (admin-roll-random-level)
 
 (set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
@@ -1165,12 +1188,10 @@ inbounds-check
 If we are the admin, set our settings locally to prepare to push them to the server, then call a funtion to push them to the server.
 Most of these settings will be set via progress menu, only things we need to calculate here is the "random" stuff (who is and isnt seeker etc)
 |#
-(if (should-update-game-settings?)
-(begin
-(admin-roll-random-level)
-(pc-http-update-settings)
-
-))
+(when (should-update-game-settings?)
+  (admin-roll-random-level)
+  (pc-http-update-settings)
+  )
 #|
 If we are not the admin, wait for a time, then get the updated settings from the server.
 |#

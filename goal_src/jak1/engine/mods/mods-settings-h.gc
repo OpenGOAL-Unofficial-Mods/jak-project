@@ -13,7 +13,7 @@
   (found)
   )
 
-(defun-debug mp-game-role->string ((cmd mp-game-role))
+(defun mp-game-role->string ((cmd mp-game-role))
   (enum->string mp-game-role cmd)
   )
 
@@ -27,7 +27,7 @@
   (mp-game-end)
   )
 
-(defun-debug mp-game-state->string ((cmd mp-game-state))
+(defun mp-game-state->string ((cmd mp-game-state))
   (enum->string mp-game-state cmd)
   )
 
@@ -45,8 +45,34 @@
   (mp-tgt-seeker-play)
   )
 
-(defun-debug mp-tgt-state->string ((cmd mp-tgt-state))
+(defun mp-tgt-state->string ((cmd mp-tgt-state))
   (enum->string mp-tgt-state cmd)
+  )
+
+(defun mp-tgt-state->display ((state mp-tgt-state))
+  (case state
+    (((mp-tgt-state mp-tgt-lobby))
+      "LOBBY"
+      )
+    (((mp-tgt-state mp-tgt-ready))
+      "READY"
+      )
+    (((mp-tgt-state mp-tgt-start))
+      "START"
+      )
+    (((mp-tgt-state mp-tgt-hider-start) (mp-tgt-state mp-tgt-hider-play))
+      "HIDER"
+      )
+    (((mp-tgt-state mp-tgt-hider-found))
+      "FOUND"
+      )
+    (((mp-tgt-state mp-tgt-seeker-wait) (mp-tgt-state mp-tgt-seeker-start) (mp-tgt-state mp-tgt-seeker-play))
+      "SEEKER"
+      )
+    (else
+      "INVALID"
+      )
+    )
   )
 
 (defenum tgt-color

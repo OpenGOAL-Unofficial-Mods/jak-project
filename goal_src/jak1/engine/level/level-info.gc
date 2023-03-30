@@ -2037,8 +2037,8 @@
                                              :vis-nick 'none
                                              :lev0 'spyro2-autumnplains
                                              :disp0 'display
-                                             :lev1 'training
-                                             :disp1 'display
+                                             :lev1 'village1
+                                             :disp1 #f
                                              ))
                            :tasks '()
                            :priority 100
@@ -2078,8 +2078,8 @@
                                              :vis-nick 'none
                                              :lev0 'SM64-BombombBattlefield
                                              :disp0 'display
-                                             :lev1 'training
-                                             :disp1 'display
+                                             :lev1 'village1
+                                             :disp1 #f
                                              ))
                            :tasks '()
                            :priority 100
@@ -2119,8 +2119,8 @@
                                              :vis-nick 'none
                                              :lev0 'AMOUNGUS-SKLED
                                              :disp0 'display
-                                             :lev1 'training
-                                             :disp1 'display
+                                             :lev1 'village1
+                                             :disp1 #f
                                              ))
                            :tasks '()
                            :priority 100
