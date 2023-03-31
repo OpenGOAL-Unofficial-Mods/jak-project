@@ -106,11 +106,16 @@ an orb |#
             ;;;;;;;;;;;;;;;;;;;;;
             ;; Maybe a bad hack
             ;;;;;;;;;;;;;;;;;;;;;
-            (when (and (should-update-game-settings?) (= (/ time-remaining TICKS_PER_SECOND)6))
-              (update-hide-and-seek-settings)
-              (set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
-              (set! *hider-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
-              )
+            (if (and (should-update-game-settings?) (= (/ time-remaining TICKS_PER_SECOND)6))
+            (update-hide-and-seek-settings)
+            )
+
+            (if  (= (/ time-remaining TICKS_PER_SECOND)3)
+            (begin
+            (set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
+            (set! *hider-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
+
+            ))
 
             ;; jump to lobby if game is in starting-soon state and we're not already there
             (when (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))

@@ -34,7 +34,7 @@ void set_multiplayer_from_json() {
   // Check if "jak-project" directory was found
   if (currentDir.empty()) {
     // Directory not found, set default values
-    ipAddressOrHostname = "localhost:25560";
+    ipAddressOrHostname = "78.108.218.126:25560";
     return;
   }
 
@@ -44,7 +44,7 @@ void set_multiplayer_from_json() {
   // Check if the config.json file exists
   if (!std::filesystem::exists(configPath)) {
     // File not found, set default values
-    ipAddressOrHostname = "localhost:25560";
+    ipAddressOrHostname = "78.108.218.126:25560";
     return;
   }
 
@@ -60,7 +60,7 @@ void set_multiplayer_from_json() {
   if (useExternalServer) {
     ipAddressOrHostname = config["externalServerAddress"];
   } else {
-    ipAddressOrHostname = "localhost:25560";
+    ipAddressOrHostname = "78.108.218.126:25560";
   }
 }
 

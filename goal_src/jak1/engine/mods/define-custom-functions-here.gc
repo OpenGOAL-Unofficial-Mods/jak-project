@@ -1188,10 +1188,12 @@ inbounds-check
 If we are the admin, set our settings locally to prepare to push them to the server, then call a funtion to push them to the server.
 Most of these settings will be set via progress menu, only things we need to calculate here is the "random" stuff (who is and isnt seeker etc)
 |#
-(when (should-update-game-settings?)
-  (admin-roll-random-level)
-  (pc-http-update-settings)
-  )
+(if (should-update-game-settings?)
+(begin
+(admin-roll-random-level)
+(pc-http-update-settings)
+
+))
 #|
 If we are not the admin, wait for a time, then get the updated settings from the server.
 |#
