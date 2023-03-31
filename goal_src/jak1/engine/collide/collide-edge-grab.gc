@@ -71,15 +71,17 @@
             (set! (-> gp-0 search-dir-vec quad) (-> obj control unknown-vector20 quad))
             (search-for-edges gp-0 (-> gp-0 hold-list))
             (when (find-best-grab! gp-0 (-> gp-0 hold-list) (-> *edge-grab-info-list* tgt-idx))
-              (send-event obj 'edge-grab)
-              (return (the-as object #f))
+              ;; hns
+              (if (= obj *target*)(begin(send-event obj 'edge-grab)
+              (return (the-as object #f))))
               )
             )
           ;; use target's heading
           (vector-z-quaternion! (-> gp-0 search-dir-vec) (-> obj control unknown-quaternion00))
           (search-for-edges gp-0 (-> gp-0 hold-list))
           (when (find-best-grab! gp-0 (-> gp-0 hold-list) (-> *edge-grab-info-list* tgt-idx))
-              (send-event obj 'edge-grab)
+              ;; hns
+              (if (= obj *target*) (send-event obj 'edge-grab))
               )
           0
           )
