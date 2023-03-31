@@ -21,6 +21,7 @@ an orb |#
 ;; Begin function defintions.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define *sync-random-level-mode* #f)
 
 (defun runs-every-frame ()
   (when (and (!= *target* #f) (!= (-> (level-get-target-inside *level*) name) 'title))
@@ -59,6 +60,8 @@ an orb |#
             (reset-player-to-lobby)
             )
 
+          (set! *sync-random-level-mode* #f)
+          
           ;; set to lobby state if not lobby/ready/start
           (when (and (!= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-lobby))
                      (!= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-ready))
@@ -106,16 +109,20 @@ an orb |#
             ;;;;;;;;;;;;;;;;;;;;;
             ;; Maybe a bad hack
             ;;;;;;;;;;;;;;;;;;;;;
-            (if (and (should-update-game-settings?) (= (/ time-remaining TICKS_PER_SECOND)6))
-            (update-hide-and-seek-settings)
-            )
+            (when (and (not *sync-random-level-mode*) 
+                       (should-update-game-settings?) 
+                       (= (/ time-remaining TICKS_PER_SECOND) 6)
+                       )
+              (set! *sync-random-level-mode* #t)
+              (update-hide-and-seek-settings)
+              )
 
-            (if  (= (/ time-remaining TICKS_PER_SECOND)3)
-            (begin
-            (set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
-            (set! *hider-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
+            (if  (= (/ time-remaining TICKS_PER_SECOND) 3)
+              (begin
+              (set! *seeker-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
+              (set! *hider-continue-point* (random-checkpoint-by-level-idx  (-> *multiplayer-info* hide-and-seek-game-info level-mode)))
 
-            ))
+              ))
 
             ;; jump to lobby if game is in starting-soon state and we're not already there
             (when (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
