@@ -82,6 +82,8 @@ std::string game_arg_documentation() {
  */
 int main(int argc, char** argv) {
   ArgumentGuard u8_guard(argc, argv);
+  read_username_from_file(username);
+  std::cout << "Username: " << username << std::endl;
   //set_multiplayer_from_json();
   // TODO - this is a temporary shim to convert the old arg format
   // into the new

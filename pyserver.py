@@ -8,6 +8,7 @@ import threading
 from enum import Enum
 from urllib.parse import urlparse, parse_qs
 import platform
+import os
 
 URL = '0.0.0.0'
 is_server = platform.system() == "Linux"
@@ -109,6 +110,15 @@ DEFAULT_PLAYER_INFO = {
 
 PLAYER_DISCONNECT_TIMEOUT = 600 # 10 min for development/testing
 # PLAYER_DISCONNECT_TIMEOUT = 30 # 30 sec for real use
+
+def get_banned_ips():
+    banned_ips = []
+    if os.path.exists('banned_ips.txt'):
+        print("FOUND BANNED IP FILE")
+        with open('banned_ips.txt', 'r') as f:
+            for line in f:
+                banned_ips.append(line.strip())
+    return banned_ips
 
 def determine_admin_player():
   total_players = 0
@@ -218,6 +228,7 @@ class RequestHandler(BaseHTTPRequestHandler):
       # register
       case "/register":
         username = query.get('username', [])
+        ip = self.client_address[0]  # Get client IP address
 
         if len(PLAYER_LIST) == 0:
           # first player, setup lobby
@@ -225,6 +236,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         if len(username) == 0 or len(username[0]) == 0:
           self.send_response_bad_request_400()
+        elif ip in get_banned_ips():
+          # IP is banned, send 403 Forbidden status
+          self.send_response(403)
+          self.send_header('Content-type', 'text/plain')
+          self.end_headers()
+          self.wfile.write(b"Your IP address has been banned.")
+          self.wfile.flush()
         else:
           if username[0] in PLAYER_IDX_LOOKUP:
             # existing user, treat as rejoin

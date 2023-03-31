@@ -393,6 +393,7 @@
 (define-extern *pc-user-dir-base-path* string)
 (define-extern *pc-settings-folder* string)
 (define-extern *pc-settings-built-sha* string)
+(define-extern *local_username* string)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; vm functions

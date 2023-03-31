@@ -21,6 +21,48 @@ using json = nlohmann::json;
 
 std::string ipAddressOrHostname = "78.108.218.126:25560";
 
+char username[101];
+
+void read_username_from_file(char* username) {
+    std::ifstream infile("multiplayer_hns_settings.json");
+
+    if (!infile.good()) {
+        // file doesn't exist or can't be opened
+        std::string error_message = "ERROR JSON FILE NOT FOUND AT ";
+        error_message += std::filesystem::absolute("multiplayer_hns_settings.json").string();
+        std::strcpy(username, error_message.c_str());
+        return;
+    }
+
+    std::string line;
+    bool found = false;
+    while (std::getline(infile, line)) {
+        // remove whitespace from the line
+        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+
+        // check if the line contains the "username" key
+        if (line.find("\"username\"") == 0) {
+            // get the value by removing everything before and after the quotes
+            std::string value = line.substr(line.find('"', 10) + 1);
+            value.erase(value.find_last_of('"'));
+            // copy value to username buffer
+            std::strcpy(username, value.c_str());
+            found = true;
+            break;
+        }
+    }
+
+    infile.close();
+
+    if (!found) {
+        std::strcpy(username, "ERROR USERNAME KEY NOT FOUND");
+    }
+}
+
+
+
+
+
 //This approach WILL break on release builds
 void set_multiplayer_from_json() {
   // Get the current working directory
