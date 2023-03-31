@@ -316,13 +316,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         found = data["found_username"]
 
         if seeker in PLAYER_IDX_LOOKUP and found in PLAYER_IDX_LOOKUP:
-          if MP_INFO["seekers_infect"] == 1:
-            PLAYER_LIST[PLAYER_IDX_LOOKUP[found]]["role"] = MpGameRole.SEEKER.value
-          else:
-            PLAYER_LIST[PLAYER_IDX_LOOKUP[found]]["role"] = MpGameRole.FOUND.value
+          # if MP_INFO["seekers_infect"] == 1:
+          #   PLAYER_LIST[PLAYER_IDX_LOOKUP[found]]["role"] = MpGameRole.SEEKER.value
+          # else:
+          PLAYER_LIST[PLAYER_IDX_LOOKUP[found]]["role"] = MpGameRole.FOUND.value
           PLAYER_LIST[PLAYER_IDX_LOOKUP[found]]["collected_by_pnum"] = PLAYER_IDX_LOOKUP[seeker]
           MP_INFO["alert_found_pnum"] = PLAYER_IDX_LOOKUP[found]
           MP_INFO["alert_seeker_pnum"] = PLAYER_IDX_LOOKUP[seeker]
+          MP_INFO["num_hiders_left"] -= 1
+          PLAYER_LIST[PLAYER_IDX_LOOKUP[found]]["rank"] = MP_INFO["num_hiders_left"] + MP_INFO["num_seekers"]
         else:
           print("couldn't find player(s) in mark_found", hider, seeker)
     
@@ -403,6 +405,7 @@ def game_loop():
         for i in range(len(PLAYER_LIST)):
           PLAYER_LIST[i]["role"] = MpGameRole.LOBBY.value
           PLAYER_LIST[i]["collected_by_pnum"] = -1
+          PLAYER_LIST[i]["rank"] = -1
         # go to STARTING_SOON if either:
         # - an admin wants to start
         # - 50% are ready/start and anyone wants to start
@@ -430,6 +433,7 @@ def game_loop():
             PLAYER_LIST[i]["role"] = MpGameRole.SEEKER.value
             seekers += 1
 
+          hiders = 0
           # set remaining players to HIDER
           for i in range(len(PLAYER_LIST)):
             if (PLAYER_LIST[i] is None or PLAYER_LIST[i] == {} or
@@ -440,6 +444,9 @@ def game_loop():
               continue
             print(f"player {i} is hider")
             PLAYER_LIST[i]["role"] = MpGameRole.HIDER.value
+            hiders += 1
+          MP_INFO["num_hiders"] = hiders
+          MP_INFO["num_hiders_left"] = hiders
 
           print("STARTING_SOON -> PLAY_HIDE")
           MP_INFO["state"] = MpGameState.PLAY_HIDE.value
@@ -454,6 +461,15 @@ def game_loop():
         # see if timer is up and we should end game
         if time.time() - last_state_change_time >= MP_INFO["hider_victory_timeout"]:
           print("PLAY_SEEK -> END (timeout - hiders win)")
+          for i in range(len(PLAYER_LIST)):
+            if (PLAYER_LIST[i] is None or PLAYER_LIST[i] == {}):
+              continue
+            if PLAYER_LIST[i]["role"] == MpGameRole.SEEKER.value:
+              PLAYER_LIST[i]["rank"] = MP_INFO["num_hiders_left"] + 1
+            elif PLAYER_LIST[i]["role"] == MpGameRole.HIDER.value:
+              PLAYER_LIST[i]["rank"] = 1
+            # else your rank should already be set
+
           MP_INFO["state"] = MpGameState.END.value
           last_state_change_time = time.time()
 
@@ -462,11 +478,25 @@ def game_loop():
         # if no hiders left, then we should end game
         if active_seekers > 0 and active_hiders == 0:
           print("PLAY_SEEK -> END (no hiders - seekers win)")
+          for i in range(len(PLAYER_LIST)):
+            if (PLAYER_LIST[i] is None or PLAYER_LIST[i] == {}):
+              continue
+            if PLAYER_LIST[i]["role"] == MpGameRole.SEEKER.value:
+              PLAYER_LIST[i]["rank"] = 1
+            # else your rank should already be set
+            
           MP_INFO["state"] = MpGameState.END.value
           last_state_change_time = time.time()
         # if no seekers, then we should end game
         if active_hiders > 0 and active_seekers == 0:
           print("PLAY_SEEK -> END (no seekers - hiders win)")
+          for i in range(len(PLAYER_LIST)):
+            if (PLAYER_LIST[i] is None or PLAYER_LIST[i] == {}):
+              continue
+            if PLAYER_LIST[i]["role"] == MpGameRole.HIDER.value:
+              PLAYER_LIST[i]["rank"] = 1
+            # else your rank should already be set
+
           MP_INFO["state"] = MpGameState.END.value
           last_state_change_time = time.time()
         # if no seekers or hiders... end game?
