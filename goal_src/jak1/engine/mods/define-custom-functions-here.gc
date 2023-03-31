@@ -311,10 +311,10 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
              (remote-seeker? (= (-> p hns_info role) (mp-game-role seeker)))
              )
         ;; draw usernames if both players are seekers/hiders
-        (when (= local-seeker? remote-seeker?)
+        (when (and (= local-seeker? remote-seeker?) #t)
           (add-debug-text-3d
                        #t
-                       (bucket-id debug-no-zbuf)
+                       (bucket-id subtitle)
                        (-> p username)
                        (-> t root trans)
                        (font-color white)

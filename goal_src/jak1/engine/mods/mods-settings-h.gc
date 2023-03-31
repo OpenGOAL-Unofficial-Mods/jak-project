@@ -131,3 +131,13 @@
   (same)      ;; everyone spawns at same (random) checkpoint, not supported yet
   )
 
+;; This code should run on the start of every match to give cells/unlock things
+(defun hns-init-game ()
+
+(none)
+)
+;; This code should run once when there is a victor and reset the game and any boolean flags or states etc
+(defun hns-reset-game ()
+
+(none)
+)
