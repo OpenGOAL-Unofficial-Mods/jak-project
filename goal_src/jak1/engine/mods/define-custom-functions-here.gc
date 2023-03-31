@@ -67,7 +67,7 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 (defun set-up-remote-if-null ()
   (when (not *self-player-info*)
     (set! *self-player-info* (new 'global 'remote-player-info))
-    (set! (-> *self-player-info* username) (symbol->string (-> *pc-settings* username))) ;; TODO - pull this from settings I guess?
+    (set! (-> *self-player-info* username) *local_username*) ;; TODO - pull this from settings I guess?
     (set! (-> *self-player-info* color)  (-> *pc-settings* tgt-color)) ;; TODO - pull this from settings I guess?
     )
   (none)
