@@ -87,6 +87,7 @@
   (purple)
   (pink)
   (light-blue)
+  (max)
   )
 
 (defun tgt-color->string ((cmd tgt-color))

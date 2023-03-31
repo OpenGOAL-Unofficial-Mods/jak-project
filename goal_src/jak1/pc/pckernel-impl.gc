@@ -55,7 +55,8 @@
 ;;;; resets
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
+(define-extern knuth-rand-int-range (function int int int))
+  
 (defmethod reset-misc pc-settings-jak1 ((obj pc-settings-jak1))
   "Set the default misc settings"
 
@@ -78,7 +79,7 @@
   (set! (-> obj money-starburst?) #f)
   (set! (-> obj extra-hud?) #f)
   (set! (-> obj username) 'DEFAULT)
-  (set! (-> obj tgt-color) (tgt-color green))
+  (set! (-> obj tgt-color)  (the-as tgt-color (knuth-rand-int-range 0 (the-as int32 (tgt-color max)))))
   (none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
