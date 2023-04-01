@@ -249,6 +249,7 @@ an orb |#
                               (!= (-> *multiplayer-info* players idx hns_info mp_state) (mp-tgt-state mp-tgt-invalid))
                               (!= (-> *multiplayer-info* players idx hns_info mp_state) (mp-tgt-state mp-tgt-hider-found))
                               (!= (-> *multiplayer-info* players idx hns_info mp_state) (mp-tgt-state mp-tgt-lobby))
+                              (!= (-> *multiplayer-info* players idx hns_info role) (mp-game-role seeker)) 
                               (< (vector-vector-distance (-> *target* root trans) (-> (get-target idx) root trans)) (meters 2.0))
                               )
                       (pc-http-mark-found idx)
