@@ -1167,7 +1167,7 @@ inbounds-check
         (mp-tgt-state->display (-> *multiplayer-info* players idx hns_info mp_state))
         )
       (draw-string-xy *temp-string* buf 5 48 (font-color dark-green) (font-flags shadow kerning)))
-      (else 
+      (else
       (format *temp-string* "~S (~S)~%"
         (-> *multiplayer-info* players idx username)
         (mp-tgt-state->display (-> *multiplayer-info* players idx hns_info mp_state))
@@ -1218,3 +1218,12 @@ inbounds-check
     |#
   (none)
 )
+
+
+(defun change-local-color ()
+(if (!= (the-as int32 (-> *self-player-info* color)) (- (the-as int32(tgt-color max)) 1))
+(set! (-> *self-player-info* color)  (+ (-> *self-player-info* color) 1))
+(set! (-> *self-player-info* color) (tgt-color normal))
+  )
+)
+
