@@ -1154,15 +1154,28 @@ inbounds-check
   (clear *temp-string*)
   (dotimes (idx MAX_MULTIPLAYER_COUNT)
     (when (!= (-> *multiplayer-info* players idx hns_info mp_state) (mp-tgt-state mp-tgt-invalid))
+       (case (-> *multiplayer-info* players idx hns_info mp_state)
+      (((mp-tgt-state mp-tgt-lobby))
       (format *temp-string* "~S (~S)~%"
         (-> *multiplayer-info* players idx username)
         (mp-tgt-state->display (-> *multiplayer-info* players idx hns_info mp_state))
         )
-      )
-    )
-    (draw-string-xy *temp-string* buf 5 48 (font-color light-blue) (font-flags shadow kerning))
+      (draw-string-xy *temp-string* buf 5 48 (font-color yellow-orange) (font-flags shadow kerning)))
+      (((mp-tgt-state mp-tgt-ready))
+      (format *temp-string* "~S (~S)~%"
+        (-> *multiplayer-info* players idx username)
+        (mp-tgt-state->display (-> *multiplayer-info* players idx hns_info mp_state))
+        )
+      (draw-string-xy *temp-string* buf 5 48 (font-color dark-green) (font-flags shadow kerning)))
+      (else 
+      (format *temp-string* "~S (~S)~%"
+        (-> *multiplayer-info* players idx username)
+        (mp-tgt-state->display (-> *multiplayer-info* players idx hns_info mp_state))
+        (draw-string-xy *temp-string* buf 5 48 (font-color light-blue) (font-flags shadow kerning)))
+      )))
+  )  
   (none)
-  )
+)
 
 (defun draw-instructions-text ((buf dma-buffer) (str string))
   (draw-string-xy str buf 256 200 (font-color flat-yellow) (font-flags middle shadow kerning))
