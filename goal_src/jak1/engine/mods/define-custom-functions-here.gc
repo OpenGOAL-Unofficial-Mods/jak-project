@@ -290,18 +290,26 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
   (none)
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TODO Improve
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun position-actor ((obj process-drawable) (p remote-player-info))
-  ;; position
-  (set! (-> obj root trans x) (-> p trans_x))
-  (set! (-> obj root trans y) (-> p trans_y))
-  (set! (-> obj root trans z) (-> p trans_z))
-  ;; rotation
-  (set! (-> obj root quat x)  (-> p quat_x))
-  (set! (-> obj root quat y)  (-> p quat_y))
-  (set! (-> obj root quat z)  (-> p quat_z))
-  (set! (-> obj root quat w)  (-> p quat_w))
-
-  (color-target obj (-> p color))
+  (while (!= (-> p hns_info role) (mp-game-role found)) 
+    ;; position
+    (set! (-> obj root trans x) (-> p trans_x))
+    (set! (-> obj root trans y) (-> p trans_y))
+    (set! (-> obj root trans z) (-> p trans_z))
+    ;; rotation
+    (set! (-> obj root quat x)  (-> p quat_x))
+    (set! (-> obj root quat y)  (-> p quat_y))
+    (set! (-> obj root quat z)  (-> p quat_z))
+    (set! (-> obj root quat w)  (-> p quat_w))
+    (color-target obj (-> p color))
+  )
+  (while (= (-> p hns_info role) (mp-game-role found))
+  (color-target obj (tgt-color yellow))
+  )
+  
 
   ;; additional steps for rotation, state, etc
   (case (-> obj type)
