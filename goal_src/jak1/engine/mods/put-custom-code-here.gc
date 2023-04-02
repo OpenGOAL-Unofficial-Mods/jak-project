@@ -49,7 +49,7 @@ an orb |#
       (with-dma-buffer-add-bucket ((testbuf (-> (current-frame) global-buf)) (bucket-id subtitle))
         
         (draw-active-players-text testbuf)
-      
+
         (case (-> *multiplayer-info* state)
           (((mp-game-state mp-game-lobby))
             ;; jump to lobby if game is in lobby state and we're not already there
