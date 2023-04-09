@@ -436,6 +436,14 @@ def game_loop():
         if time.time() - last_state_change_time >= MP_INFO["time_to_start"]:
           print("starting game, assigning roles")
 
+          players = 0
+          for i in range(len(PLAYER_LIST)):
+            if PLAYER_LIST[i] is not None and PLAYER_LIST[i] != {} and (PLAYER_LIST[i]["mp_state"] == MpTargetState.READY.value or PLAYER_LIST[i]["mp_state"] == MpTargetState.START.value or PLAYER_LIST[i]["role"] == MpGameRole.LOBBY.value):
+              players += 1
+
+          # potentially adjust num seekers based on num players (should always be at least one hider)
+          MP_INFO["num_seekers"] = min(MP_INFO["num_seekers"], players-1)
+
           # assign seekers randomly
           seekers = 0
           while seekers < MP_INFO["num_seekers"]:

@@ -1199,10 +1199,16 @@ inbounds-check
 )
 
 
-(defun change-local-color ()
-(if (!= (the-as int32 (-> *self-player-info* color)) (- (the-as int32(tgt-color max)) 1))
-(set! (-> *self-player-info* color)  (+ (-> *self-player-info* color) 1))
-(set! (-> *self-player-info* color) (tgt-color normal))
+(defun change-local-color ((d int))
+  (set! 
+    (-> *self-player-info* color) 
+    (the-as tgt-color (mod (+ (the-as int32 (-> *self-player-info* color))  
+            (the-as int32 (tgt-color max))
+            d
+            )
+          (the-as int32 (tgt-color max))
+          )
+    ))
+    (none)
   )
-)
 
