@@ -22,6 +22,7 @@ an orb |#
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *sync-random-level-mode* #f)
+(define *show-player-list?* #t)
 
 (defun runs-every-frame ()
   (when (and (!= *target* #f) (!= (-> (level-get-target-inside *level*) name) 'title))
@@ -48,6 +49,11 @@ an orb |#
         (change-local-color 1)
         )
 
+      ;; check if player wants to toggle playerlist hide/shown
+      (when (and (cpad-hold? 0 l3) (cpad-pressed? 0 up))
+        (set! *show-player-list?* (not *show-player-list?*))
+        )
+
       ;; jump to lobby if we're in lobby state and not already there (e.g. joined in middle of game)
       (when (and (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-lobby))
                   (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
@@ -56,7 +62,9 @@ an orb |#
         )
       (with-dma-buffer-add-bucket ((testbuf (-> (current-frame) global-buf)) (bucket-id subtitle))
         
-        (draw-active-players-text testbuf)
+        (when *show-player-list?*
+          (draw-active-players-text testbuf)
+          )
 
         (case (-> *multiplayer-info* state)
           (((mp-game-state mp-game-lobby))
