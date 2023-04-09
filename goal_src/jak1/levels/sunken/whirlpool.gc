@@ -21,7 +21,7 @@
   :size-assert         #xcc
   :flag-assert         #x15006000cc
   (:methods
-    (dummy-20 (_type_ float) symbol 20)
+    (whirlpool-method-20 (_type_ float) cshape-moving-flags 20)
     )
   (:states
     whirlpool-idle
@@ -286,7 +286,7 @@
     )
   )
 
-(defmethod dummy-20 whirlpool ((obj whirlpool) (arg0 float))
+(defmethod whirlpool-method-20 whirlpool ((obj whirlpool) (arg0 float))
   (let* ((gp-0 (target-pos 0))
          (f28-0 (vector-vector-xz-distance (-> obj root-override trans) gp-0))
          )
@@ -320,6 +320,7 @@
         )
       )
     )
+    (the-as cshape-moving-flags #f) ;; nothing actually cares what's returned by this method
   )
 
 (defstate whirlpool-idle (whirlpool)
@@ -340,7 +341,7 @@
       (dotimes (tgt-idx MAX_MULTIPLAYER_COUNT)
         (let ((tgt (get-target tgt-idx)))
           (if (and tgt (logtest? (-> tgt water flags) (water-flags wt09)))
-            (dummy-20 self f30-0)
+            (whirlpool-method-20 self f30-0)
             )
           )
         )
@@ -413,7 +414,3 @@
   (go whirlpool-idle)
   (none)
   )
-
-
-
-

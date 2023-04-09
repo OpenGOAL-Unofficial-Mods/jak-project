@@ -539,7 +539,7 @@
 ;; WARN: Return type mismatch entity-actor vs none.
 (defmethod debug-print entity-actor ((obj entity-actor) (arg0 symbol) (arg1 type))
   (let ((s4-0 (-> obj etype)))
-    (when (or (not arg1) (and s4-0 (valid? s4-0 type #f #f 0) (type-type? s4-0 arg1)))
+    (when (or (not arg1) (and s4-0 (valid? s4-0 type (the-as string #f) #f 0) (type-type? s4-0 arg1)))
       (format #t "~5D  #x~8X  ~-26S" (-> obj extra vis-id) obj (res-lump-struct obj 'name structure))
       (let ((t9-4 format)
             (a0-5 #t)
@@ -1115,7 +1115,7 @@
      (when sv-20
        (let ((s5-1 add-debug-text-3d)
              (s4-1 #t)
-             (s3-1 318)
+             (s3-1 (bucket-id debug-no-zbuf1))
              )
          (format (clear *temp-string*) "~S ~D~%" (pickup-type->string (the-as pickup-type (-> sv-20 0))) (-> sv-20 1))
          (s5-1
@@ -1162,7 +1162,7 @@
     (else
       (let ((s5-3 add-debug-text-3d)
             (s4-3 #t)
-            (s3-3 318)
+            (s3-3 (bucket-id debug-no-zbuf1))
             )
         (format (clear *temp-string*) "pid ~d" (-> (the-as process-drawable arg0) pid))
         (s5-3
@@ -1248,7 +1248,7 @@
                         (let ((s1-0 add-debug-text-3d)
                               (s0-0 #t)
                               )
-                          (set! sv-32 318)
+                          (set! sv-32 (the-as int (bucket-id debug-no-zbuf1)))
                           (let ((a2-4 (res-lump-struct s2-0 'name structure))
                                 (a3-2 sv-20)
                                 (t0-1 (if (logtest? (-> s2-0 extra perm status) (entity-perm-status bit-0 bit-1))
@@ -1285,7 +1285,7 @@
                       (when (and v0-6 (or (= s5-3 #t) (= s5-3 'box)))
                         (set! sv-48 add-debug-box)
                         (set! sv-64 #t)
-                        (set! sv-80 318)
+                        (set! sv-80 (the-as int (bucket-id debug-no-zbuf1)))
                         (set! sv-96 (&+ v0-6 0))
                         (set! sv-112 (&+ v0-6 16))
                         (let ((t0-3 (if (is-object-visible? s3-1 a1-10)
@@ -1605,7 +1605,7 @@
        )
       ((begin
          (set! (-> s4-0 type) s5-0)
-         (and s5-0 (valid? s5-0 type #f #f 0) (valid? (method-of-object s4-0 init-from-entity!) function #f #f 0))
+         (and s5-0 (valid? s5-0 type (the-as string #f) #f 0) (valid? (method-of-object s4-0 init-from-entity!) function (the-as string #f) #f 0))
          )
        (init-entity s4-0 obj (the-as process s5-0))
        )
@@ -2241,6 +2241,14 @@
                               (not (logtest? (-> sv-48 perm status) (entity-perm-status bit-9 bit-10)))
                               (not (logtest? (-> sv-48 kill-mask) sv-32))
                               (or (-> s4-1 vis-info 0) (< (vector-vector-distance (-> sv-48 trans) sv-16) (-> sv-48 vis-dist)))
+                              ;; PC port note : added this extra check to fix level types being used after deloaded because of bad entity placement
+                              (#if PC_PORT
+                                  (or (not (type-type? (-> sv-48 entity type) entity-actor)) (and (valid? (-> (the-as entity-actor (-> sv-48 entity)) etype) type "entity-type-check etype" #f *stdcon*)
+                                                                                                  (valid? (-> (the-as entity-actor (-> sv-48 entity)) etype symbol) symbol "entity-type-check symbol" #f *stdcon*)
+                                                                                                  (valid? (-> (the-as entity-actor (-> sv-48 entity)) etype symbol value) type "entity-type-check value" #f *stdcon*)
+                                                                                                  (= (-> (the-as entity-actor (-> sv-48 entity)) etype) (-> (the-as entity-actor (-> sv-48 entity)) etype symbol value))
+                                                                                                  ))
+                                  #f)
                               )
                          (when (not (or (-> sv-48 process) (logtest? (-> sv-48 perm status) (entity-perm-status bit-0 dead)) s0-0))
                            (birth! (-> sv-48 entity))

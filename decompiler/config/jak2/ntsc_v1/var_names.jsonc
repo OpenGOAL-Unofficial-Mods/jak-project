@@ -2247,7 +2247,7 @@
       "s1-1": "light-idx",
       "s2-1": "lg",
       "v1-53": "packed-shadow-vals",
-      "a0-28": "light-idx",
+      "a0-28": "light-idx2",
       "a2-8": "light-pal-idx",
       "s1-2": "fg-light-lev-idx",
       "v1-62": "lev",
@@ -4157,6 +4157,40 @@
       "f2-0": "danger-level",
       "f1-0": "danger-radius",
       "f3-0": "decay-rate"
+    }
+  },
+  "(method 24 com-airlock)": {
+    "vars": {
+      "gp-1": ["level-list", "pair"],
+      "s4-0": "borrow-lev-name",
+      "s3-0": ["level-list-iter", "pair"],
+      "s2-0": "lev-name"
+    },
+    "args": ["obj", "display?"]
+  },
+  "(method 23 com-airlock)": {
+    "vars": {
+      "s4-0": "tgt"
+    }
+  },
+  "(method 23 bigmap)": {
+    "vars": {
+      "a0-3": ["a0-3", "(pointer int64)"]
+    }
+  },
+  "(method 26 bigmap)": {
+    "vars": {
+      "v1-1": ["v1-1", "vector4w"]
+    }
+  },
+  "(method 11 bigmap)": {
+    "vars": {
+      "v1-111": ["v1-111", "vector4w"],
+      "v1-115": ["v1-115", "vector4w"],
+      "v1-119": ["v1-119", "vector4w"],
+      "v1-121": ["v1-121", "vector4w"],
+      "v1-123": ["v1-123", "vector4w"],
+      "a0-62": ["a0-62", "vector4w"]
     }
   }
 }

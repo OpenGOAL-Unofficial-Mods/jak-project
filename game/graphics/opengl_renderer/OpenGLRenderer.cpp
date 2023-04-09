@@ -1,5 +1,6 @@
 #include "OpenGLRenderer.h"
 
+#include "common/goal_constants.h"
 #include "common/log/log.h"
 #include "common/util/FileUtil.h"
 
@@ -20,7 +21,6 @@
 #include "game/graphics/opengl_renderer/ocean/OceanMidAndFar.h"
 #include "game/graphics/opengl_renderer/ocean/OceanNear.h"
 #include "game/graphics/opengl_renderer/sprite/Sprite3.h"
-#include "game/graphics/opengl_renderer/sprite/SpriteRenderer.h"
 #include "game/graphics/pipelines/opengl.h"
 
 #include "third-party/imgui/imgui.h"
@@ -98,8 +98,8 @@ void OpenGLRenderer::init_bucket_renderers_jak2() {
   init_bucket_renderer<DirectRenderer>("sky-draw", BucketCategory::OTHER, BucketId::SKY_DRAW, 1024);
   init_bucket_renderer<OceanMidAndFar>("ocean-mid-far", BucketCategory::OCEAN,
                                        BucketId::OCEAN_MID_FAR);
-  // hardcoded level number!!!
-  for (int i = 0; i < 6; ++i) {
+
+  for (int i = 0; i < LEVEL_MAX; ++i) {
 #define GET_BUCKET_ID_FOR_LIST(bkt1, bkt2, idx) ((int)(bkt1) + ((int)(bkt2) - (int)(bkt1)) * (idx))
     init_bucket_renderer<TextureUploadHandler>(
         fmt::format("tex-l{}-tfrag", i), BucketCategory::TEX,
@@ -204,7 +204,7 @@ void OpenGLRenderer::init_bucket_renderers_jak2() {
   init_bucket_renderer<TextureUploadHandler>("tex-all-sprite", BucketCategory::TEX,
                                              BucketId::TEX_ALL_SPRITE);
   init_bucket_renderer<Sprite3>("particles", BucketCategory::SPRITE, BucketId::PARTICLES);
-  init_bucket_renderer<LightningRenderer>("lightning", BucketCategory::OTHER, BucketId::EFFECTS);
+  init_bucket_renderer<LightningRenderer>("effects", BucketCategory::OTHER, BucketId::EFFECTS);
   init_bucket_renderer<TextureUploadHandler>("tex-all-warp", BucketCategory::TEX,
                                              BucketId::TEX_ALL_WARP);
   init_bucket_renderer<DirectRenderer>("debug-no-zbuf1", BucketCategory::OTHER,
@@ -216,12 +216,12 @@ void OpenGLRenderer::init_bucket_renderers_jak2() {
                                          0x8000);
   init_bucket_renderer<DirectRenderer>("screen-filter", BucketCategory::OTHER,
                                        BucketId::SCREEN_FILTER, 256);
-  init_bucket_renderer<DirectRenderer>("bucket-322", BucketCategory::OTHER, BucketId::BUCKET_322,
+  init_bucket_renderer<DirectRenderer>("subtitle", BucketCategory::OTHER, BucketId::SUBTITLE,
                                        0x8000);
   init_bucket_renderer<DirectRenderer>("debug2", BucketCategory::OTHER, BucketId::DEBUG2, 0x8000);
   init_bucket_renderer<DirectRenderer>("debug-no-zbuf2", BucketCategory::OTHER,
                                        BucketId::DEBUG_NO_ZBUF2, 0x8000);
-  init_bucket_renderer<DirectRenderer>("debug3", BucketCategory::OTHER, BucketId::DEBUG3, 0x8000);
+  init_bucket_renderer<DirectRenderer>("debug3", BucketCategory::OTHER, BucketId::DEBUG3, 0x1000);
 
   auto eye_renderer = std::make_unique<EyeRenderer>("eyes", 0);
   m_render_state.eye_renderer = eye_renderer.get();
@@ -282,7 +282,8 @@ void OpenGLRenderer::init_bucket_renderers_jak1() {
   // 7 : TFRAG_NEAR_LEVEL0
   // 8 : TIE_NEAR_LEVEL0
   // 9 : TIE_LEVEL0
-  init_bucket_renderer<Tie3>("l0-tfrag-tie", BucketCategory::TIE, BucketId::TIE_LEVEL0, 0);
+  init_bucket_renderer<Tie3WithEnvmapJak1>("l0-tfrag-tie", BucketCategory::TIE,
+                                           BucketId::TIE_LEVEL0, 0);
   // 10 : MERC_TFRAG_TEX_LEVEL0
   init_bucket_renderer<Merc2>("l0-tfrag-merc", BucketCategory::MERC,
                               BucketId::MERC_TFRAG_TEX_LEVEL0);
@@ -302,7 +303,8 @@ void OpenGLRenderer::init_bucket_renderers_jak1() {
   // 14 : TFRAG_NEAR_LEVEL1
   // 15 : TIE_NEAR_LEVEL1
   // 16 : TIE_LEVEL1
-  init_bucket_renderer<Tie3>("l1-tfrag-tie", BucketCategory::TIE, BucketId::TIE_LEVEL1, 1);
+  init_bucket_renderer<Tie3WithEnvmapJak1>("l1-tfrag-tie", BucketCategory::TIE,
+                                           BucketId::TIE_LEVEL1, 1);
   // 17 : MERC_TFRAG_TEX_LEVEL1
   init_bucket_renderer<Merc2>("l1-tfrag-merc", BucketCategory::MERC,
                               BucketId::MERC_TFRAG_TEX_LEVEL1);
@@ -442,13 +444,7 @@ void OpenGLRenderer::init_bucket_renderers_jak1() {
   init_bucket_renderer<TextureUploadHandler>("common-tex", BucketCategory::TEX,
                                              BucketId::PRE_SPRITE_TEX);  // 65
 
-  std::vector<std::unique_ptr<BucketRenderer>> sprite_renderers;
-  // the first renderer added will be the default for sprite.
-  sprite_renderers.push_back(std::make_unique<Sprite3>("sprite-3", (int)BucketId::SPRITE));
-  sprite_renderers.push_back(
-      std::make_unique<SpriteRenderer>("sprite-renderer", (int)BucketId::SPRITE));
-  init_bucket_renderer<RenderMux>("sprite", BucketCategory::SPRITE, BucketId::SPRITE,
-                                  std::move(sprite_renderers));  // 66
+  init_bucket_renderer<Sprite3>("sprite", BucketCategory::SPRITE, BucketId::SPRITE);  // 66
 
   init_bucket_renderer<DirectRenderer>("debug", BucketCategory::OTHER, BucketId::DEBUG, 0x20000);
   init_bucket_renderer<DirectRenderer>("debug-no-zbuf", BucketCategory::OTHER,
@@ -466,8 +462,8 @@ void OpenGLRenderer::init_bucket_renderers_jak1() {
     m_bucket_renderers[i]->init_shaders(m_render_state.shaders);
     m_bucket_renderers[i]->init_textures(*m_render_state.texture_pool, GameVersion::Jak1);
   }
-  sky_cpu_blender->init_textures(*m_render_state.texture_pool);
-  sky_gpu_blender->init_textures(*m_render_state.texture_pool);
+  sky_cpu_blender->init_textures(*m_render_state.texture_pool, m_version);
+  sky_gpu_blender->init_textures(*m_render_state.texture_pool, m_version);
   m_render_state.loader->load_common(*m_render_state.texture_pool, "GAME");
 }
 
@@ -839,7 +835,7 @@ void OpenGLRenderer::dispatch_buckets_jak1(DmaFollower dma,
       dma.current_tag_offset() + 16;  // offset by 1 qw for the initial call
   m_render_state.next_bucket = m_render_state.buckets_base;
   m_render_state.bucket_for_vis_copy = (int)jak1::BucketId::TFRAG_LEVEL0;
-  m_render_state.num_vis_to_copy = 2;
+  m_render_state.num_vis_to_copy = jak1::LEVEL_MAX;
 
   // Find the default regs buffer
   auto initial_call_tag = dma.current_tag();
@@ -903,7 +899,7 @@ void OpenGLRenderer::dispatch_buckets_jak2(DmaFollower dma,
   m_render_state.buckets_base = dma.current_tag_offset();  // starts at 0 in jak 2
   m_render_state.next_bucket = m_render_state.buckets_base + 16;
   m_render_state.bucket_for_vis_copy = (int)jak2::BucketId::BUCKET_2;
-  m_render_state.num_vis_to_copy = 6;
+  m_render_state.num_vis_to_copy = jak2::LEVEL_MAX;
 
   for (size_t bucket_id = 0; bucket_id < m_bucket_renderers.size(); bucket_id++) {
     auto& renderer = m_bucket_renderers[bucket_id];

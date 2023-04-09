@@ -10,6 +10,7 @@
 
 #include "game/discord.h"
 #include "game/multiplayer.h"
+#include "game/graphics/jak2_texture_remap.h"
 #include "game/kernel/common/Symbol4.h"
 #include "game/kernel/common/fileio.h"
 #include "game/kernel/common/kboot.h"
@@ -510,7 +511,7 @@ u64 get_os() {
 
 void pc_set_levels(u32 lev_list) {
   std::vector<std::string> levels;
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < LEVEL_MAX; i++) {
     u32 lev = *Ptr<u32>(lev_list + i * 4);
     std::string ls = Ptr<String>(lev).c()->data();
     if (ls != "none" && ls != "#f" && ls != "") {
@@ -626,6 +627,7 @@ void InitMachine_PCPort() {
   make_function_symbol_from_c("__pc-texture-relocate", (void*)pc_texture_relocate);
   make_function_symbol_from_c("__pc-get-mips2c", (void*)pc_get_mips2c);
   make_function_symbol_from_c("__pc-set-levels", (void*)pc_set_levels);
+  make_function_symbol_from_c("__pc-get-tex-remap", (void*)lookup_jak2_texture_dest_offset);
 
   // pad stuff
   make_function_symbol_from_c("pc-pad-get-mapped-button", (void*)Gfx::get_mapped_button);

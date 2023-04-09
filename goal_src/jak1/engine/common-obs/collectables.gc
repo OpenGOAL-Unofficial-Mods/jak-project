@@ -779,7 +779,7 @@
        (case (-> (level-get-target-inside *level*) name)
          (('training)
           (level-hint-spawn
-            (game-text-id training-eco-reminder)
+            (text-id training-eco-reminder)
             "sagevb23"
             (the-as entity #f)
             *entity-pool*
@@ -1707,7 +1707,7 @@
         (cond
           ((= arg0 (game-task training-buzzer))
            (level-hint-spawn
-             (game-text-id training-buzzer-resolution)
+             (text-id training-buzzer-resolution)
              "asstvb45"
              (the-as entity #f)
              *entity-pool*
@@ -1716,7 +1716,7 @@
            )
           ((= arg0 (game-task training-door))
            (level-hint-spawn
-             (game-text-id training-eco-opened-door)
+             (text-id training-eco-opened-door)
              "sagevb25"
              (the-as entity #f)
              *entity-pool*
@@ -1725,7 +1725,7 @@
            )
           ((= arg0 (game-task beach-ecorocks))
            (level-hint-spawn
-             (game-text-id beach-ecorocks-resolution)
+             (text-id beach-ecorocks-resolution)
              "sagevb01"
              (the-as entity #f)
              *entity-pool*
@@ -1734,7 +1734,7 @@
            )
           ((= arg0 (game-task misty-cannon))
            (level-hint-spawn
-             (game-text-id misty-cannon-resolution)
+             (text-id misty-cannon-resolution)
              "sagevb02"
              (the-as entity #f)
              *entity-pool*
@@ -1743,7 +1743,7 @@
            )
           ((= arg0 (game-task misty-bike))
            (level-hint-spawn
-             (game-text-id misty-bike-resolution)
+             (text-id misty-bike-resolution)
              "asstvb03"
              (the-as entity #f)
              *entity-pool*
@@ -1752,7 +1752,7 @@
            )
           ((= arg0 (game-task firecanyon-end))
            (level-hint-spawn
-             (game-text-id firecanyon-end-resolution)
+             (text-id firecanyon-end-resolution)
              "sksp0095"
              (the-as entity #f)
              *entity-pool*
@@ -1761,7 +1761,7 @@
            )
           ((= arg0 (game-task rolling-robbers))
            (level-hint-spawn
-             (game-text-id rolling-robbers-resolution)
+             (text-id rolling-robbers-resolution)
              "asstvb20"
              (the-as entity #f)
              *entity-pool*
@@ -1770,7 +1770,7 @@
            )
           ((= arg0 (game-task rolling-plants))
            (level-hint-spawn
-             (game-text-id rolling-plants-resolution)
+             (text-id rolling-plants-resolution)
              "sagevb03"
              (the-as entity #f)
              *entity-pool*
@@ -1779,7 +1779,7 @@
            )
           ((= arg0 (game-task swamp-flutflut))
            (level-hint-spawn
-             (game-text-id swamp-flutflut-resolution)
+             (text-id swamp-flutflut-resolution)
              "asstvb21"
              (the-as entity #f)
              *entity-pool*
@@ -1788,7 +1788,7 @@
            )
           ((= arg0 (game-task ogre-boss))
            (level-hint-spawn
-             (game-text-id ogre-boss-resolution)
+             (text-id ogre-boss-resolution)
              "asstvb23"
              (the-as entity #f)
              *entity-pool*
@@ -1797,7 +1797,7 @@
            )
           ((= arg0 (game-task ogre-end))
            (level-hint-spawn
-             (game-text-id ogre-race-resolution)
+             (text-id ogre-race-resolution)
              "asstvb25"
              (the-as entity #f)
              *entity-pool*
@@ -1806,7 +1806,7 @@
            )
           ((= arg0 (game-task beach-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1815,7 +1815,7 @@
            )
           ((= arg0 (game-task jungle-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1824,7 +1824,7 @@
            )
           ((= arg0 (game-task misty-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1833,7 +1833,7 @@
            )
           ((= arg0 (game-task firecanyon-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1842,7 +1842,7 @@
            )
           ((= arg0 (game-task rolling-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1851,7 +1851,7 @@
            )
           ((= arg0 (game-task sunken-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1860,7 +1860,7 @@
            )
           ((= arg0 (game-task swamp-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1869,7 +1869,7 @@
            )
           ((= arg0 (game-task ogre-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1878,7 +1878,7 @@
            )
           ((= arg0 (game-task cave-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1887,7 +1887,7 @@
            )
           ((= arg0 (game-task snow-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1896,7 +1896,7 @@
            )
           ((= arg0 (game-task lavatube-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1905,7 +1905,7 @@
            )
           ((= arg0 (game-task citadel-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1914,7 +1914,7 @@
            )
           ((= arg0 (game-task village1-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1923,7 +1923,7 @@
            )
           ((= arg0 (game-task village2-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -1932,7 +1932,7 @@
            )
           ((= arg0 (game-task village3-buzzer))
            (level-hint-spawn
-             (game-text-id sidekick-buzzer-resolution)
+             (text-id sidekick-buzzer-resolution)
              "sksp009k"
              (the-as entity #f)
              *entity-pool*
@@ -2208,7 +2208,7 @@
     (case (-> (level-get-target-inside *level*) name)
       (('training)
        (level-hint-spawn
-         (game-text-id training-buzzer-hint)
+         (text-id training-buzzer-hint)
          "asstvb44"
          (the-as entity #f)
          *entity-pool*
@@ -2217,7 +2217,7 @@
        )
       (('firecanyon)
        (level-hint-spawn
-         (game-text-id firecanyon-buzzer-hint)
+         (text-id firecanyon-buzzer-hint)
          "sksp0096"
          (the-as entity #f)
          *entity-pool*
@@ -2226,7 +2226,7 @@
        )
       (else
         (level-hint-spawn
-          (game-text-id sidekick-hint-buzzer3)
+          (text-id sidekick-hint-buzzer3)
           "sksp009j"
           (the-as entity #f)
           *entity-pool*
@@ -2515,7 +2515,7 @@
                              )
                      )
                (level-hint-spawn
-                 (game-text-id misty-eco-red-hint)
+                 (text-id misty-eco-red-hint)
                  "sksp0071"
                  (the-as entity #f)
                  *entity-pool*
