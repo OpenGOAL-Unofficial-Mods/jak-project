@@ -108,8 +108,8 @@ DEFAULT_PLAYER_INFO = {
   "last_update": 0
 }
 
-PLAYER_DISCONNECT_TIMEOUT = 600 # 10 min for development/testing
-# PLAYER_DISCONNECT_TIMEOUT = 30 # 30 sec for real use
+# PLAYER_DISCONNECT_TIMEOUT = 600 # 10 min for development/testing
+PLAYER_DISCONNECT_TIMEOUT = 30 # 30 sec for real use
 
 def get_banned_ips():
     banned_ips = []
@@ -255,6 +255,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             # fill out empty keys
             player_info = copy.deepcopy(DEFAULT_PLAYER_INFO)
             player_info["mp_state"] = MpTargetState.LOBBY.value
+            player_info["last_update"] = time.time()
             PLAYER_LIST.append(player_info)
 
           determine_admin_player()
@@ -400,8 +401,11 @@ def game_loop():
         # dont count this player as joined
         continue
       
-      if time.time() - PLAYER_LIST[i]["last_update"] >= PLAYER_DISCONNECT_TIMEOUT:
+      if "last_update" in PLAYER_LIST[i] and PLAYER_LIST[i]["last_update"] > 0 and time.time() - PLAYER_LIST[i]["last_update"] >= PLAYER_DISCONNECT_TIMEOUT:
+        print(f"player {i} hasn't updated in {PLAYER_DISCONNECT_TIMEOUT}s, removing them")
         # havent heard from player in too long, kick them out
+        if "username" in PLAYER_LIST[i] and PLAYER_LIST[i]["username"] in PLAYER_IDX_LOOKUP:
+          PLAYER_IDX_LOOKUP.pop(PLAYER_LIST[i]["username"]) 
         PLAYER_LIST[i] = copy.deepcopy(DEFAULT_PLAYER_INFO)
         continue
 
