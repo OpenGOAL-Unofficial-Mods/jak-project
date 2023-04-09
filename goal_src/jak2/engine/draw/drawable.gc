@@ -5,6 +5,8 @@
 ;; name in dgo: drawable
 ;; dgos: ENGINE, GAME
 
+(define-extern draw-vortex (function none))
+
 ;; DECOMP BEGINS
 
 (defmacro spr-work ()
@@ -962,21 +964,19 @@
                       )
                     (when (not (or (>= lev-idx-for-mood (the-as uint 6)) (zero? shadow-mask)))
                       (let ((packed-shadow-vals (-> dc shadow-values)))
-                        (set! light-idx (the uint 0))
-                        (while (< light-idx 4)
-                          (when (nonzero? (-> lg lights light-idx mask))
-                            (when (not (logtest? (-> lg lights light-idx mask) shadow-mask-not))
-                              (let ((light-pal-idx (-> lg lights light-idx palette-index)))
-                                (set! (-> lg lights light-idx extra x)
+                        (dotimes (light-idx2 4)
+                          (when (nonzero? (-> lg lights light-idx2 mask))
+                            (when (not (logtest? (-> lg lights light-idx2 mask) shadow-mask-not))
+                              (let ((light-pal-idx (-> lg lights light-idx2 palette-index)))
+                                (set! (-> lg lights light-idx2 extra x)
                                       (* 0.0625
                                          (the float (logand (ash packed-shadow-vals (* -4 light-pal-idx)) 15))
-                                         (-> lg lights light-idx extra x)
+                                         (-> lg lights light-idx2 extra x)
                                          )
                                       )
                                 )
                               )
                             )
-                          (+! light-idx 1)
                           )
                         )
                       )
@@ -1400,7 +1400,7 @@
   (local-vars (a0-96 int) (a0-98 int))
   (with-pp
     (when *slow-frame-rate*
-      (dotimes (v1-2 #xc35000)
+      (dotimes (v1-2 12800000)
         (nop!)
         (nop!)
         (nop!)
@@ -1460,7 +1460,7 @@
     ;; draw the sky
     (with-profiler 'sky *profile-sky-color*
       (if (-> *sky-work* draw-vortex)
-          (format 0 "no vortex.~%");(draw-vortex)
+          (draw-vortex)
           (draw *sky-work*)
           )
       (flush-cache 0)
@@ -1745,6 +1745,8 @@
   (tick! (-> arg0 bg-clock))
   (set! (-> arg0 bg-clock frame-counter) (the-as time-frame (mod (-> arg0 bg-clock frame-counter) #x69780)))
   (tick! (-> arg0 part-clock))
+  (#when PC_PORT
+    (tick! *airlock-clock*))
 
   ; (when (and (nonzero? *screen-shot-work*) (!= (-> *screen-shot-work* count) -1))
   ;   (let ((v1-43 (-> *screen-shot-work* size)))
@@ -1786,7 +1788,7 @@
       (debug-reset-buffers)
       (clear! *simple-sprite-system*)
       )
-    (set! (-> s5-1 bucket-group) (dma-buffer-add-buckets (-> s5-1 calc-buf) 327))
+    (set! (-> s5-1 bucket-group) (dma-buffer-add-buckets (-> s5-1 calc-buf) (enum-length bucket-id)))
     )
 
   (service-cpads)
@@ -2069,7 +2071,7 @@
 
       ;; end each normal bucket with the standard GS state reset
       (let ((s3-3 6)
-            (s2-2 324)
+            (s2-2 (bucket-id debug2))
             )
         (while (>= s2-2 s3-3)
           (default-end-buffer
@@ -2110,7 +2112,7 @@
         )
 
       ;; link all buckets to build the final massive dma list.
-      (dma-buffer-patch-buckets (-> s4-0 bucket-group) 327)
+      (dma-buffer-patch-buckets (-> s4-0 bucket-group) (enum-length bucket-id))
 
       ;; append the final END
       (let* ((v1-71 s5-0)
