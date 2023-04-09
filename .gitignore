@@ -11,6 +11,7 @@ cmake-build-debug--o0/*
 build/*
 /decompiler_out*
 logs/*
+profile_data/*
 
 # for vscode/clangd
 .cache/*
@@ -73,3 +74,4 @@ __pycache__/
 goal_src/jak1/engine/mods/personal-temp-settings.gc
 config/multiplayerconfig.json
 .vscode/settings.json
+scripts/batch/ReleaseTemplate.rar

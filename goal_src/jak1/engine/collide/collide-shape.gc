@@ -925,8 +925,10 @@
        )
       (((pat-event burn))
        ;; burn. Send a burn event
+       ;; hns
+       (if  (not (or (= (-> *target* current-level name) 'firecanyon)  (= (-> *target* current-level name) 'lavatube)))
        (send-event (-> obj process) 'attack #f (static-attack-info ((mode 'burn) (shove-up (meters 3)))))
-       )
+       ))
       (((pat-event deadlyup))
        ;; deadlyup. Launch!
        (target-attack-up (the-as target (-> obj process)) 'attack-or-shove 'deadlyup)
@@ -934,9 +936,13 @@
       (((pat-event burnup))
        ;; burnup (like fire canyon lava).
        ;; only send if we don't have ca-9 (on zoomer)
-       (if (zero? (logand (-> (the-as target (-> obj process)) control root-prim prim-core action) (collide-action ca-9)))
-           (target-attack-up (the-as target (-> obj process)) 'attack-or-shove 'burnup)
+       ;; hns
+          (if  (not (or (= (-> *target* current-level name) 'firecanyon)  (= (-> *target* current-level name) 'lavatube)))
+            (begin
+              (if (zero? (logand (-> (the-as target (-> obj process)) control root-prim prim-core action) (collide-action ca-9)))
+              (target-attack-up (the-as target (-> obj process)) 'attack-or-shove 'burnup)
            )
+          ))
        )
       (((pat-event melt))
        ;; just send melt

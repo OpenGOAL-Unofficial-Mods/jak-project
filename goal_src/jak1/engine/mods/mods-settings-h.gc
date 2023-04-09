@@ -13,7 +13,7 @@
   (found)
   )
 
-(defun-debug mp-game-role->string ((cmd mp-game-role))
+(defun mp-game-role->string ((cmd mp-game-role))
   (enum->string mp-game-role cmd)
   )
 
@@ -27,7 +27,7 @@
   (mp-game-end)
   )
 
-(defun-debug mp-game-state->string ((cmd mp-game-state))
+(defun mp-game-state->string ((cmd mp-game-state))
   (enum->string mp-game-state cmd)
   )
 
@@ -45,8 +45,34 @@
   (mp-tgt-seeker-play)
   )
 
-(defun-debug mp-tgt-state->string ((cmd mp-tgt-state))
+(defun mp-tgt-state->string ((cmd mp-tgt-state))
   (enum->string mp-tgt-state cmd)
+  )
+
+(defun mp-tgt-state->display ((state mp-tgt-state))
+  (case state
+    (((mp-tgt-state mp-tgt-lobby))
+      "LOBBY"
+      )
+    (((mp-tgt-state mp-tgt-ready))
+      "READY"
+      )
+    (((mp-tgt-state mp-tgt-start))
+      "START"
+      )
+    (((mp-tgt-state mp-tgt-hider-start) (mp-tgt-state mp-tgt-hider-play))
+      "HIDER"
+      )
+    (((mp-tgt-state mp-tgt-hider-found))
+      "FOUND"
+      )
+    (((mp-tgt-state mp-tgt-seeker-wait) (mp-tgt-state mp-tgt-seeker-start) (mp-tgt-state mp-tgt-seeker-play))
+      "SEEKER"
+      )
+    (else
+      "INVALID"
+      )
+    )
   )
 
 (defenum tgt-color
@@ -61,9 +87,10 @@
   (purple)
   (pink)
   (light-blue)
+  (max)
   )
 
-(defun-debug tgt-color->string ((cmd tgt-color))
+(defun tgt-color->string ((cmd tgt-color))
   (enum->string tgt-color cmd)
   )
 
@@ -100,7 +127,17 @@
 
 (defenum hns-continue-pt-mode
   :type uint32
-  (same)      ;; everyone spawns at same (random) checkpoint
   (different) ;; everyone spawns at different (random) checkpoints
+  (same)      ;; everyone spawns at same (random) checkpoint, not supported yet
   )
 
+;; This code should run on the start of every match to give cells/unlock things
+(defun hns-init-game ()
+
+(none)
+)
+;; This code should run once when there is a victor and reset the game and any boolean flags or states etc
+(defun hns-reset-game ()
+
+(none)
+)

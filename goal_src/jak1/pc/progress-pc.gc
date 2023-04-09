@@ -2686,6 +2686,7 @@
     (none)
     ))
 
+(define-extern should-update-game-settings? (function symbol))
 ;; override the enter handler for progress-going-out
 (set! (-> progress-going-out enter)
   (lambda :behavior progress ()
@@ -2694,6 +2695,9 @@
     (remove-setting! 'music)
     (apply-settings *setting-control*)
     (progress-reset-music-parms)
+    (if (should-update-game-settings?)
+      (pc-http-update-settings) ;; update multiplayer game settings if admin
+      )
     (commit-to-file *pc-settings*)
     (set! (-> self particles 3 init-pos x) -320.0)
     (set! (-> self particles 4 init-pos x) -320.0)

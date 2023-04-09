@@ -2276,7 +2276,7 @@ This commonly includes things such as:
             (cond
               ((= (-> self game mode) 'play)
                (send-event (handle->process (-> self turret handle)) 'trans (-> self control trans))
-               (go target-death 'turret)
+               (if (= self *target*) (go target-death 'turret))
                #t
                )
               (else
@@ -2300,7 +2300,7 @@ This commonly includes things such as:
                 )
               (combine! a0-22 (the-as attack-info gp-0) self)
               )
-            (go target-death 'bot)
+            (if (= self *target*) (go target-death 'bot))
             )
            )
          )
