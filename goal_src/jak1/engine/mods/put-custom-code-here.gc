@@ -420,8 +420,8 @@ an orb |#
   (none)
   )
 
-    (defun runs-on-jak-spawn ()
-      ;; Code here runs every time jak spawns (loading a file new game or death)   
+(defun runs-on-jak-spawn ()
+  ;; Code here runs every time jak spawns (loading a file new game or death)   
 
 
 	

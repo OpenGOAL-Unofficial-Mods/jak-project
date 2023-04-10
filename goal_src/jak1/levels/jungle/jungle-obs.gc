@@ -922,7 +922,7 @@
   (set! (-> obj base quad) (-> obj root-override trans quad))
   (set! (-> obj sound) (new 'process 'ambient-sound arg0 (-> obj root-override trans)))
   (cond
-    ((and (-> obj entity) (logtest? (-> obj entity extra perm status) (entity-perm-status complete)))
+    (#t ;; (and (-> obj entity) (logtest? (-> obj entity extra perm status) (entity-perm-status complete)))
      (logclear! (-> obj mask) (process-mask actor-pause))
      (go precurbridge-active #t)
      )

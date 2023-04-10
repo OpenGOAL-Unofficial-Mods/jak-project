@@ -170,17 +170,17 @@
               (s5-1 (vector<-cspace! (new 'stack-no-clear 'vector) (-> self node-list data 3)))
               )
           (cond
-            ((not (or s4-1 (task-closed? (game-task village3-button) (task-status need-hint))))
-             )
-            ((and (< (the int (-> *game-info* fuel)) (+ s3-0 2)) (< (the int (-> *game-info* fuel)) 71) (not s4-1))
-             (level-hint-spawn
-               (text-id gondola-need-cells)
-               "asstvb75"
-               (the-as entity #f)
-               *entity-pool*
-               (game-task none)
-               )
-             )
+            ;; ((not (or s4-1 (task-closed? (game-task village3-button) (task-status need-hint))))
+            ;;  )
+            ;; ((and (< (the int (-> *game-info* fuel)) (+ s3-0 2)) (< (the int (-> *game-info* fuel)) 71) (not s4-1))
+            ;;  (level-hint-spawn
+            ;;    (text-id gondola-need-cells)
+            ;;    "asstvb75"
+            ;;    (the-as entity #f)
+            ;;    *entity-pool*
+            ;;    (game-task none)
+            ;;    )
+            ;;  )
             (else
               (level-hint-spawn
                 (text-id gondola-enough-cells)

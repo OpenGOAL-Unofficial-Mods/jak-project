@@ -20,7 +20,7 @@
 
 
 (defmethod can-activate? jungle-elevator ((obj jungle-elevator))
-  (and ((method-of-type plat-button can-activate?) obj) (task-complete? *game-info* (game-task jungle-tower)))
+  (and ((method-of-type plat-button can-activate?) obj))
   )
 
 (defstate plat-button-move-downward (jungle-elevator)

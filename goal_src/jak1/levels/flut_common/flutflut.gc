@@ -8,7 +8,7 @@
 ;; DECOMP BEGINS
 
 ;; Change #f to #t here to remove flutflut's invisible walls and prevent deload crashes
-(define *allow-flutflut-anywhere* #t)
+(define *allow-flutflut-anywhere* #f)
 
 (import "goal_src/jak1/import/flut-saddle-ag.gc")
 
@@ -229,7 +229,7 @@
               )
             (set! (-> gp-0 flags) (font-flags shadow kerning large))
             (print-game-text "TEMP DISABLED IN HNS" gp-0 #f 128 22)
-          #|(print-game-text (lookup-text! *common-text* (game-text-id press-to-use) #f) gp-0 #f 128 22)
+          #|(print-game-text (lookup-text! *common-text* (text-id press-to-use) #f) gp-0 #f 128 22)
             ) ;; hns
           (if *allow-flutflut-anywhere* ;; if "self" is passed instead of #f, deloading level/flutflut will crash
             (if (and (cpad-pressed? 0 circle) (send-event *target* 'change-mode 'flut #f))

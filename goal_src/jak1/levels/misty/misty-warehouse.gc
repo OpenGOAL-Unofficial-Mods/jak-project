@@ -159,7 +159,7 @@
            )
         )
   (set! (-> obj link) (new 'process 'actor-link-info obj))
-  (if (and (-> obj entity) (logtest? (-> obj entity extra perm status) (entity-perm-status complete)))
+  (if #t ;; (and (-> obj entity) (logtest? (-> obj entity extra perm status) (entity-perm-status complete)))
       (go silostep-rise #t)
       (go silostep-idle)
       )

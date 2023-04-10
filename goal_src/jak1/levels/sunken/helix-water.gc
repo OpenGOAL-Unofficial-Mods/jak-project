@@ -252,9 +252,10 @@
        (when *target*
          (when (logtest? (-> *target* control status) (cshape-moving-flags onsurf))
            (cond
-             ((and (and (-> self entity) (logtest? (-> self entity extra perm status) (entity-perm-status complete)))
-                   (not (handle->process (-> self fcell-handle)))
-                   )
+             (#t
+              ;; (and (and (-> self entity) (logtest? (-> self entity extra perm status) (entity-perm-status complete)))
+              ;;      (not (handle->process (-> self fcell-handle)))
+              ;;      )
               (go helix-button-quick-activate)
               )
              (else
