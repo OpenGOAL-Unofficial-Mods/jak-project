@@ -117,6 +117,8 @@ an orb |#
             (when (!= *last-game-state* (mp-game-state mp-game-starting-soon))
               (set! *last-game-state* (mp-game-state mp-game-starting-soon))
               (set! *game-state-change-time* (-> *display* base-frame-counter))
+              ;; ensure game is setup properly
+              (setup-world-hns)
               )
             (let* ((now (-> *display* base-frame-counter))
                     (time-remaining (max 0 (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info time-to-start))) now)))
