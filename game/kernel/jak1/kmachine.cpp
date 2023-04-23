@@ -660,7 +660,7 @@ void InitMachine_PCPort() {
       make_string_from_c(user_dir_path.string().c_str());
   auto settings_path = file_util::get_user_settings_dir(g_game_version);
   intern_from_c("*pc-settings-folder*")->value = make_string_from_c(settings_path.string().c_str());
-  intern_from_c("*pc-settings-built-sha*")->value = make_string_from_c(GIT_VERSION);
+  intern_from_c("*pc-settings-built-sha*")->value = make_string_from_c(build_revision().c_str());
 
   intern_from_c("*local_username*")->value = make_string_from_c(username);
 }
