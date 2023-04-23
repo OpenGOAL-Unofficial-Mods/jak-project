@@ -58,7 +58,6 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
 ;; Define Custom Functions to call in mods
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 (defun reset-player-to-lobby ()
   (start 'play (get-continue-by-name *game-info* *lobby-continue-point*))
   (none)
@@ -71,7 +70,123 @@ if the result of rand-vu-int-range is 1, then DANCE! if it is not 1, then Don't 
     (set! (-> *self-player-info* color)  (-> *pc-settings* tgt-color)) ;; TODO - pull this from settings I guess?
     )
   (none)
-)
+  )
+
+(defun setup-world-hns ()
+  ;; reset world
+  (set! (-> *game-info* mode) 'debug)
+  (initialize! *game-info* 'game (the-as game-save #f) (the-as string #f)) 
+  (set! (-> *game-info* mode) 'play)
+
+  ;; training
+  ;; skip intro cutscene
+  (close-specific-task! (game-task intro) (task-status need-resolution))
+
+  ;; village1
+  ;; skip geyser cutscenes/avoid warp to geyser
+  (close-specific-task! (game-task beach-ecorocks) (task-status need-introduction))
+  ;; unlock boat to/from misty (+ fishermans-boat.gc)
+  (close-specific-task! (game-task jungle-fishgame) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task jungle-fishgame)))
+
+  ;; beach
+  ;; pelican intro cutscene (+ pelican.gc)
+  (close-specific-task! (game-task beach-pelican) (task-status need-hint))
+  ;; avoid seagull cutscene
+  (close-specific-task! (game-task beach-seagull) (task-status need-reminder))
+  ;; unlock blue eco vent
+  (close-specific-task! (game-task jungle-eggtop) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task jungle-eggtop)))
+
+  ;; jungle
+  ;; blue eco bridge (jungle-obs.gc)
+  ;; blue eco switch (already done for beach)
+  ;; plant boss (+ plant-boss.gc)
+  (close-specific-task! (game-task jungle-plant) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task jungle-plant)))
+
+  ;; misty
+  ;; muse
+  (close-specific-task! (game-task misty-muse) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task misty-muse)))
+  ;; ambush (battlecontroller.gc / misty-warehouse.gc)
+  (close-specific-task! (game-task misty-warehouse) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task misty-warehouse)))
+  ;; unlock boat (already done for village1)
+
+  ;; firecanyon
+  ;; unlock zoomer
+  (close-specific-task! (game-task firecanyon-assistant) (task-status need-reward-speech))
+  ;; unlock blue eco vent (already done for beach)
+
+  ;; village2
+
+  ;; sunken
+  ;; unlock soccer ball chamber (sun-exit-chamber.gc)
+  ;; unlock piggyback door (sun-iris-door.gc)
+  ;; skip dark eco rising cutscene (+ helix-water.gc)
+  (close-specific-task! (game-task sunken-slide) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task sunken-slide)))
+  
+  ;; swamp
+  ;; unlock flutflut
+  (close-specific-task! (game-task beach-flutflut) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task beach-flutflut)))
+  (close-specific-task! (game-task village2-levitator) (task-status need-hint))
+  ;; ambush
+  (close-specific-task! (game-task swamp-battle) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task swamp-battle)))
+  
+  ;; rolling
+  ;; zoomer
+  (close-specific-task! (game-task village2-levitator) (task-status need-introduction))
+  ;; DMG
+  (close-specific-task! (game-task rolling-race) (task-status need-introduction))
+
+  ;; ogre
+  ;; klaww (ogreboss.gc / ogre-obs.gc)
+  (close-specific-task! (game-task ogre-boss) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task ogre-boss)))
+  ;; race (flying-lurker.gc)
+  (close-specific-task! (game-task ogre-end) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task ogre-end)))
+  ;; yellow eco switch
+  ;; (close-specific-task! (game-task snow-eggtop) (task-status need-resolution))
+  ;; (send-event *target* 'get-pickup 6 (the float (game-task snow-eggtop)))
+  
+  ;; village3
+
+  ;; snow
+  ;; gondola (village3-obs.gc)
+  ;; flutflut (partially done for swamp)
+  (close-specific-task! (game-task village3-button) (task-status need-hint))
+  ;; fort gate
+  (close-specific-task! (game-task snow-ball) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task snow-ball)))
+  
+  ;; cave
+  ;; yellow switch (already done for ogre)
+  
+  ;; lavatube
+  ;; unlock zoomer (+ racer.gc)
+  (close-specific-task! (game-task lavatube-start) (task-status need-reward-speech))
+  ;; TODO - fix/remove zoomer for spawns?
+  ;; unlock oranges doors
+  (close-specific-task! (game-task lavatube-balls) (task-status need-resolution))
+  (close-specific-task! (game-task lavatube-end) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task lavatube-end)))
+  
+  ;; citadel
+  ;; red/yellow/blue sage (no ambush cutscene, steps are there so no v2)
+  (close-specific-task! (game-task citadel-sage-red) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task citadel-sage-red)))
+  (close-specific-task! (game-task citadel-sage-yellow) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task citadel-sage-yellow)))
+  (close-specific-task! (game-task citadel-sage-blue) (task-status need-resolution))
+  (send-event *target* 'get-pickup 6 (the float (game-task citadel-sage-blue)))
+  
+  (none)
+  )
 
 (defun should-update-game-settings? () 
   (and (>= (-> *multiplayer-info* player_num) 0)
@@ -1199,10 +1314,16 @@ inbounds-check
 )
 
 
-(defun change-local-color ()
-(if (!= (the-as int32 (-> *self-player-info* color)) (- (the-as int32(tgt-color max)) 1))
-(set! (-> *self-player-info* color)  (+ (-> *self-player-info* color) 1))
-(set! (-> *self-player-info* color) (tgt-color normal))
+(defun change-local-color ((d int))
+  (set! 
+    (-> *self-player-info* color) 
+    (the-as tgt-color (mod (+ (the-as int32 (-> *self-player-info* color))  
+            (the-as int32 (tgt-color max))
+            d
+            )
+          (the-as int32 (tgt-color max))
+          )
+    ))
+    (none)
   )
-)
 

@@ -511,7 +511,7 @@ battlecontroller-default-event-handler
   )
 
 (defbehavior battlecontroller-task-completed? battlecontroller ()
-  (>= (-> self entity extra perm user-int8 0) 1)
+  #t ;; (>= (-> self entity extra perm user-int8 0) 1)
   )
 
 (defbehavior battlecontroller-set-task-completed battlecontroller ()

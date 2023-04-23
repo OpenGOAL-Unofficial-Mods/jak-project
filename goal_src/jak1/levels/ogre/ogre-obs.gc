@@ -1172,7 +1172,7 @@
       )
     )
   (cond
-    ((and (-> obj entity) (logtest? (-> obj entity extra perm status) (entity-perm-status complete)))
+    (#t ;;(and (-> obj entity) (logtest? (-> obj entity extra perm status) (entity-perm-status complete)))
      (set! (-> obj dead-joint-count) 8)
      (ogre-bridge-update-joints)
      (go ogre-bridge-activated)

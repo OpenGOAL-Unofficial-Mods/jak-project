@@ -253,8 +253,9 @@
   )
 
 (defmethod should-display? assistant-firecanyon ((obj assistant-firecanyon))
-  (first-any (-> obj tasks) #t)
-  (= (current-status (-> obj tasks)) (task-status need-reward-speech))
+  #t
+  ;; (first-any (-> obj tasks) #t)
+  ;; (= (current-status (-> obj tasks)) (task-status need-reward-speech))
   )
 
 (defmethod init-from-entity! assistant-firecanyon ((obj assistant-firecanyon) (arg0 entity-actor))

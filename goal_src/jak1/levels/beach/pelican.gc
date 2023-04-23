@@ -893,6 +893,7 @@
   (set! (-> obj neck ear) (the-as uint 0))
   (set! (-> obj neck max-dist) 61440.0)
   (set! (-> obj neck ignore-angle) 16384.0)
+  
   (case (-> obj entity extra perm user-int8 0)
     ((10)
      (go pelican-wait-at-end #t)
@@ -931,7 +932,8 @@
      (go pelican-wait-at-nest #t)
      )
     (else
-      (go pelican-circle)
+      (go pelican-wait-at-nest #t)
+      ;; (go pelican-circle)
       )
     )
   (none)

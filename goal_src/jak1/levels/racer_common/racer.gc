@@ -6,7 +6,7 @@
 ;; dgos: L1, FIC, LAV, MIS, OGR, RACERP, ROL
 
 ;; Change #f to #t here to remove zoomer's invisible walls and prevent deload crashes
-(define *allow-zoomer-anywhere* #t)
+(define *allow-zoomer-anywhere* #f)
 
 (define-extern blocking-plane-destroy (function none))
 (define-extern blocking-plane-spawn (function curve-control none :behavior process))
@@ -157,7 +157,7 @@
          ((and *cheat-mode* (cpad-hold? 0 l3))
           (goto cfg-77)
           )
-         ((>= (-> *game-info* fuel) 72.0)
+         (#t ;; (>= (-> *game-info* fuel) 72.0)
           (goto cfg-77)
           )
          )
@@ -256,7 +256,7 @@
               (set! (-> gp-0 flags) (font-flags shadow kerning large))
               (print-game-text "TEMP DISABLED IN HNS" gp-0 #f 128 22)
               ;; hns look for more elgant fix for this
-            #|(print-game-text (lookup-text! *common-text* (game-text-id press-to-use) #f) gp-0 #f 128 22)
+            #|(print-game-text (lookup-text! *common-text* (text-id press-to-use) #f) gp-0 #f 128 22)
               )
             (if *allow-zoomer-anywhere* ;; if "self" is passed instead of #f, deloading level/zoomer will crash
               (if (and (or (cpad-pressed? 0 circle) (= (-> self condition) 4)) (send-event *target* 'change-mode 'racing #f))

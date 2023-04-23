@@ -22,6 +22,7 @@ an orb |#
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *sync-random-level-mode* #f)
+(define *show-player-list?* #t)
 
 (defun runs-every-frame ()
   (when (and (!= *target* #f) (!= (-> (level-get-target-inside *level*) name) 'title))
@@ -40,6 +41,19 @@ an orb |#
 
   (when (and *target* (>= (-> *multiplayer-info* player_num) 0) (< (-> *multiplayer-info* player_num) MAX_MULTIPLAYER_COUNT))
     (when (!= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-invalid))
+      ;; check if player wants to change their color
+      (when (and (cpad-hold? 0 l3) (cpad-pressed? 0 left))
+        (change-local-color -1)
+        )
+      (when (and (cpad-hold? 0 l3) (cpad-pressed? 0 right))
+        (change-local-color 1)
+        )
+
+      ;; check if player wants to toggle playerlist hide/shown
+      (when (and (cpad-hold? 0 l3) (cpad-pressed? 0 up))
+        (set! *show-player-list?* (not *show-player-list?*))
+        )
+
       ;; jump to lobby if we're in lobby state and not already there (e.g. joined in middle of game)
       (when (and (= (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state) (mp-tgt-state mp-tgt-lobby))
                   (not (string= (-> *game-info* current-continue name) *lobby-continue-point*))
@@ -48,7 +62,9 @@ an orb |#
         )
       (with-dma-buffer-add-bucket ((testbuf (-> (current-frame) global-buf)) (bucket-id subtitle))
         
-        (draw-active-players-text testbuf)
+        (when *show-player-list?*
+          (draw-active-players-text testbuf)
+          )
 
         (case (-> *multiplayer-info* state)
           (((mp-game-state mp-game-lobby))
@@ -101,9 +117,11 @@ an orb |#
             (when (!= *last-game-state* (mp-game-state mp-game-starting-soon))
               (set! *last-game-state* (mp-game-state mp-game-starting-soon))
               (set! *game-state-change-time* (-> *display* base-frame-counter))
+              ;; ensure game is setup properly
+              (setup-world-hns)
               )
             (let* ((now (-> *display* base-frame-counter))
-                    (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info time-to-start))) now))
+                    (time-remaining (max 0 (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info time-to-start))) now)))
                     )
               ;; if we're admin and haven't synced our level, do it now (todo: update on any change, e.g. from progress menu)
               (when (and (not *sync-random-level-mode*) 
@@ -147,7 +165,7 @@ an orb |#
               (set! *game-state-change-time* (-> *display* base-frame-counter))
               )
             (let* ((now (-> *display* base-frame-counter))
-                    (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info time-to-hide))) now))
+                    (time-remaining (max 0 (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info time-to-hide))) now)))
                     )
               ;; TODO: if seeker, blackout with timer
               (case (-> *multiplayer-info* players (-> *multiplayer-info* player_num) hns_info mp_state)
@@ -193,7 +211,7 @@ an orb |#
                 (set! *game-state-change-time* (-> *display* base-frame-counter))
                 )
             (let* ((now (-> *display* base-frame-counter))
-                    (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info hider-victory-timeout))) now))
+                    (time-remaining (max 0 (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info hider-victory-timeout))) now)))
                     )
               ;; TODO: show alerts when hiders collected (server should set most recent case and then clear back to -1 every 5s or so)
               (when (and (>= (-> *multiplayer-info* hide-and-seek-game-info alert-found-pnum) 0)
@@ -273,7 +291,7 @@ an orb |#
                 (set! *game-state-change-time* (-> *display* base-frame-counter))
                 )
             (let* ((now (-> *display* base-frame-counter))
-                    (time-remaining (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info post-game-timeout))) now))
+                    (time-remaining (max 0 (- (+ *game-state-change-time* (seconds (-> *multiplayer-info* hide-and-seek-game-info post-game-timeout))) now)))
                     )
               (clear *temp-string*)
               (dotimes (idx MAX_MULTIPLAYER_COUNT)
@@ -404,8 +422,8 @@ an orb |#
   (none)
   )
 
-    (defun runs-on-jak-spawn ()
-      ;; Code here runs every time jak spawns (loading a file new game or death)   
+(defun runs-on-jak-spawn ()
+  ;; Code here runs every time jak spawns (loading a file new game or death)   
 
 
 	
