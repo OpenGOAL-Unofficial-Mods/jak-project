@@ -36,7 +36,6 @@
 #include "game/kernel/jak1/klisten.h"
 #include "game/kernel/jak1/kscheme.h"
 #include "game/kernel/jak1/ksound.h"
-#include "game/kernel/svnrev.h"
 #include "game/sce/deci2.h"
 #include "game/sce/libcdvd_ee.h"
 #include "game/sce/libdma.h"

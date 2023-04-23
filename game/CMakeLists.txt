@@ -92,6 +92,8 @@ set(RUNTIME_SOURCE
         mips2c/jak2_functions/debug.cpp
         mips2c/jak2_functions/font.cpp
         mips2c/jak2_functions/foreground.cpp
+        mips2c/jak2_functions/generic_merc.cpp
+        mips2c/jak2_functions/generic_effect.cpp
         mips2c/jak2_functions/joint.cpp
         mips2c/jak2_functions/lights.cpp
         mips2c/jak2_functions/nav_control.cpp
@@ -152,6 +154,7 @@ set(RUNTIME_SOURCE
         graphics/opengl_renderer/BucketRenderer.cpp
         graphics/opengl_renderer/CollideMeshRenderer.cpp
         graphics/opengl_renderer/debug_gui.cpp
+        graphics/opengl_renderer/DepthCue.cpp
         graphics/opengl_renderer/DirectRenderer.cpp
         graphics/opengl_renderer/DirectRenderer2.cpp
         graphics/opengl_renderer/EyeRenderer.cpp
@@ -169,7 +172,7 @@ set(RUNTIME_SOURCE
         graphics/opengl_renderer/SkyRenderer.cpp
         graphics/opengl_renderer/TextureUploadHandler.cpp
         graphics/opengl_renderer/VisDataHandler.cpp
-        graphics/opengl_renderer/DepthCue.cpp
+        graphics/opengl_renderer/Warp.cpp
         graphics/texture/jak1_tpage_dir.cpp
         graphics/texture/jak2_tpage_dir.cpp
         graphics/texture/TextureConverter.cpp
@@ -179,37 +182,6 @@ set(RUNTIME_SOURCE
         system/vm/vm.cpp
         tools/subtitles/subtitle_editor.cpp
         tools/filter_menu/filter_menu.cpp)
-
-find_package(Git)
-
-function(write_svnrev_h)
-    set(GIT_VERSION "")
-    set(GIT_SHORT_SHA "")
-    set(GIT_TAG "")
-    if (GIT_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/.git)
-        EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-                OUTPUT_VARIABLE GIT_SHORT_SHA
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-        EXECUTE_PROCESS(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} tag --points-at HEAD
-                OUTPUT_VARIABLE GIT_TAG
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-                ERROR_QUIET)
-    else()
-        set(GIT_VERSION "unk. rev.")
-    endif()
-    if(GIT_TAG)
-        set(GIT_VERSION ${GIT_TAG})
-    elseif(GIT_SHORT_SHA)
-        string(SUBSTRING ${GIT_SHORT_SHA} 0 6 GIT_SHORT_SHA)
-        set(GIT_VERSION "rev. ${GIT_SHORT_SHA}")
-    else()
-        set(GIT_VERSION "unk. rev.")
-    endif()
-
-    file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/kernel/svnrev.h "#define GIT_VERSION \"${GIT_VERSION}\"\n")
-endfunction()
-
-write_svnrev_h()
 
 add_subdirectory(sound)
 
