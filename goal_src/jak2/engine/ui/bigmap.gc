@@ -677,7 +677,7 @@
              (set! (-> *texture-relocate-later* memcpy) #f)
              (set! (-> obj progress-minimap)
                    (the-as
-                     symbol
+                     texture-page
                      (link (-> obj tpage buf) (-> obj tpage load-file data) (-> obj tpage len) (-> obj tpage heap) 4)
                      )
                    )
@@ -1026,7 +1026,7 @@
       )
     )
   (when (-> obj progress-minimap)
-    (unload-page *texture-pool* (the-as texture-page (-> obj progress-minimap)))
+    (unload-page *texture-pool* (-> obj progress-minimap))
     (set! (-> *level* default-level texture-page 3) (the-as texture-page 0))
     (set! (-> obj progress-minimap) #f)
     )
